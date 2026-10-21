@@ -1,0 +1,1395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Agents Venture Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an operator's handbook. Sticky chapter rail on the left, one reading column on the right.
+   Each chapter mixes short prose with a working tool (stepper, explorer, calculator, funnel). */
+:root{
+  --ink:#0f1b3d; --paper:#f3f5f9; --surface:#ffffff; --sunk:#eaeef5; --line:#d9deea; --muted:#5b6478; --fg:#1c2336;
+  --signal:#2f5fe0; --signal-soft:#e4ebff;
+  --c1:#2f5fe0; --c2:#0e8f86; --c3:#6b3fd6; --c4:#e0661c; --c5:#3346a8; --c6:#15924a; --c7:#c62f6e; --c8:#c62f2f; --c9:#b07c06;
+  --us:#2f5fe0; --uk:#c62f4a; --good:#15924a; --warn:#b7791f; --bad:#c62f2f;
+  --code-bg:#0f1b3d; --code-fg:#e3e9f7;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#e8edf9; --paper:#0c1325; --surface:#131c32; --sunk:#0f172b; --line:#26314d; --muted:#9aa5bf; --fg:#d8e0f1;
+  --signal:#7c9bff; --signal-soft:#1b2a52;
+  --c1:#7c9bff; --c2:#3fc2b6; --c3:#a98bff; --c4:#ff9a5a; --c5:#8f9cff; --c6:#4cc27e; --c7:#ff7aac; --c8:#ff7a7a; --c9:#e6b84a;
+  --us:#7c9bff; --uk:#ff7a90; --good:#4cc27e; --warn:#e3a94b; --bad:#ff7a7a; --code-bg:#070c18; --code-fg:#dbe3f5; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --ink:#e8edf9; --paper:#0c1325; --surface:#131c32; --sunk:#0f172b; --line:#26314d; --muted:#9aa5bf; --fg:#d8e0f1;
+  --signal:#7c9bff; --signal-soft:#1b2a52;
+  --c1:#7c9bff; --c2:#3fc2b6; --c3:#a98bff; --c4:#ff9a5a; --c5:#8f9cff; --c6:#4cc27e; --c7:#ff7aac; --c8:#ff7a7a; --c9:#e6b84a;
+  --us:#7c9bff; --uk:#ff7a90; --good:#4cc27e; --warn:#e3a94b; --bad:#ff7a7a; --code-bg:#070c18; --code-fg:#dbe3f5; color-scheme:dark }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--paper);color:var(--fg);font:15.5px/1.6 var(--f-body);
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--f-display);color:var(--ink);margin:0;text-wrap:balance}
+h2{font-size:clamp(1.6rem,3.2vw,2.25rem);font-weight:800;letter-spacing:-.015em;line-height:1.15}
+h3{font-size:1.18rem;font-weight:700;margin-top:30px;margin-bottom:10px}
+h4{font-size:1rem;font-weight:700}
+p{margin:0 0 12px;max-width:70ch}
+a{color:var(--signal)}
+b,strong{color:var(--ink)}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font:500 .72rem/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.topbar .in{display:flex;align-items:center;gap:14px;height:56px;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));max-width:1320px;margin:0 auto}
+.brand{font:800 1.02rem var(--f-display);color:var(--ink);text-decoration:none;white-space:nowrap}
+.brand span{color:var(--signal)}
+.top-sec{font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:.82rem;white-space:nowrap}
+.readbar{position:absolute;left:0;bottom:-1px;height:3px;background:var(--signal);width:0}
+
+/* shell */
+.shell{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:250px minmax(0,1fr);gap:40px;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+.rail{position:sticky;top:72px;align-self:start;max-height:calc(100vh - 90px);overflow:auto;padding-block:24px}
+.rail ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.rail a{display:grid;grid-template-columns:30px 1fr;gap:6px;align-items:baseline;padding:7px 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-size:.9rem;line-height:1.3}
+.rail a .n{font:500 .74rem var(--f-mono)}
+.rail a.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:inset 3px 0 0 var(--k,var(--signal))}
+.rail .railfoot{margin-top:18px;padding:12px;border:1px dashed var(--line);border-radius:10px;font-size:.8rem;color:var(--muted)}
+main{min-width:0;padding-block:8px 80px}
+.chapter{padding-block:46px 10px;border-top:1px solid var(--line)}
+.chapter:first-of-type{border-top:0}
+.chhead{display:grid;gap:8px;margin-bottom:22px}
+.chhead .tag{display:inline-flex;gap:8px;align-items:center;font:600 .74rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--k)}
+.chhead .tag i{width:22px;height:4px;border-radius:2px;background:var(--k)}
+.chhead .lead{font-size:1.06rem;color:var(--muted);max-width:66ch}
+
+/* hero */
+.hero{padding-block:40px 34px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:34px;align-items:center}
+.hero h1{font-size:clamp(2.3rem,5.4vw,4rem);font-weight:800;line-height:1;letter-spacing:-.025em}
+.hero h1 em{font-style:normal;color:var(--signal)}
+.hero .lede{margin-top:16px;font-size:1.08rem;color:var(--muted)}
+.hero .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:9px;padding:10px 16px;font-weight:600;text-decoration:none;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn.primary{background:var(--signal);border-color:var(--signal);color:#fff}
+.demo{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 18px 40px -26px rgba(15,27,61,.45)}
+.demo .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.demo .dots{display:flex;gap:6px}.demo .dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.demo .body{padding:16px;display:grid;gap:12px;min-height:250px}
+.demo select{width:100%;font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--fg)}
+.bubble{font-family:var(--f-mono);font-size:.84rem;color:var(--muted)}
+.ans{font-size:.96rem;line-height:1.55;min-height:88px}
+.ans mark{background:var(--signal-soft);color:var(--ink);font-weight:600;padding:0 4px;border-radius:4px}
+.ans mark.you{background:color-mix(in srgb,var(--good) 22%,var(--surface));}
+.src-chips{display:flex;flex-wrap:wrap;gap:6px}
+.src-chips span{font:500 .72rem var(--f-mono);padding:3px 8px;border-radius:20px;border:1px solid var(--line);color:var(--muted)}
+.verdict{font:600 .82rem var(--f-mono)}
+.verdict.no{color:var(--bad)} .verdict.yes{color:var(--good)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:3px;background:var(--surface);flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:6px;color:var(--muted);font-weight:600;font-size:.88rem}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:6px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:4px;min-width:0}
+.stat b{font:800 1.6rem var(--f-display);color:var(--ink)}
+.stat span{font-size:.8rem;color:var(--muted)}
+
+/* generic blocks */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}
+.callout{border-left:4px solid var(--k,var(--signal));background:var(--surface);border-radius:8px;padding:12px 16px;margin:14px 0;max-width:78ch}
+.callout b:first-child{display:block;color:var(--k,var(--signal));margin-bottom:4px}
+.oneline{border:1.5px solid var(--k,var(--signal));border-radius:10px;padding:12px 16px;margin:16px 0;font-size:1.02rem;max-width:78ch;background:var(--surface)}
+.oneline b{color:var(--k,var(--signal))}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:12px 0 18px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;font:500 .7rem var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:1px solid var(--line);background:var(--sunk);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.srcline{font-size:.78rem;color:var(--muted);margin-top:-8px;margin-bottom:16px}
+figure{margin:14px 0 20px}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:.8rem;color:var(--muted);margin-top:6px}
+.figwrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.figwrap svg{min-width:620px}
+.pill{display:inline-block;font:500 .72rem var(--f-mono);padding:2px 8px;border-radius:20px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.free{background:color-mix(in srgb,var(--good) 16%,var(--surface));color:var(--good)}
+.pill.paid{background:var(--signal-soft);color:var(--signal)}
+
+/* roadmap */
+.rm-progress{display:flex;align-items:center;gap:12px;font-size:.85rem;color:var(--muted);margin-bottom:16px;flex-wrap:wrap}
+.rm-bar{width:200px;max-width:50vw;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.rm-bar i{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+.road{display:grid;gap:18px}
+.stage-l{display:flex;gap:10px;align-items:baseline;margin-bottom:8px}
+.stage-l b{font:600 .78rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+.stops{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;position:relative}
+.stops::before{content:"";position:absolute;left:24px;right:24px;top:29px;height:4px;background:var(--line);border-radius:4px}
+.stop{position:relative;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:5px;min-width:0}
+.stop .dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font:600 .85rem var(--f-mono);background:var(--k)}
+.stop .t{font-weight:600;color:var(--ink);line-height:1.3}
+.stop .m{font-size:.78rem;color:var(--muted)}
+.stop[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--k);border-color:var(--k)}
+.stop.done .dot{background:var(--good)}
+.rm-detail{margin-top:18px;border-left:6px solid var(--k,var(--signal))}
+.rm-top{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:start}
+.rm-dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-top:14px}
+.rm-dl dt{font:500 .7rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.rm-dl dd{margin:0}
+.rm-dl ol{margin:0;padding-left:20px}
+.chk{display:inline-flex;align-items:center;gap:8px;background:var(--signal-soft);border-radius:8px;padding:8px 12px;font-weight:600;color:var(--ink)}
+.chk input{width:18px;height:18px;accent-color:var(--good)}
+.navbtns{display:flex;gap:8px;margin-top:14px}
+.navbtns button{border:1px solid var(--line);background:none;border-radius:8px;padding:6px 12px}
+.navbtns button:disabled{opacity:.4;cursor:default}
+
+/* basics visuals */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.vs .panel h4{margin-bottom:10px}
+.links{display:grid;gap:6px}
+.links div{border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:.85rem;color:var(--muted);background:var(--sunk)}
+.aibox{border:2px solid var(--signal);border-radius:10px;padding:12px;font-size:.92rem}
+.steps5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;counter-reset:s}
+.s5{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--k);border-radius:10px;padding:12px;min-width:0}
+.s5 b{display:block;color:var(--k);font-family:var(--f-display);margin-bottom:4px}
+.s5 p{font-size:.85rem;margin:0;color:var(--muted)}
+.signals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.sig{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.sig h4{color:var(--k)}
+.sig .bad,.sig .good{font-size:.84rem;margin-top:8px;padding:8px 10px;border-radius:8px}
+.sig .bad{background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.sig .good{background:color-mix(in srgb,var(--good) 12%,var(--surface))}
+.sig .bad::before{content:"Weak: ";font-weight:600;color:var(--bad)}
+.sig .good::before{content:"Strong: ";font-weight:600;color:var(--good)}
+
+/* services */
+.pipeline{display:grid;grid-template-columns:1fr auto 1fr auto 1.2fr;gap:10px;align-items:stretch;margin-bottom:18px}
+.pipe{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:4px;align-content:start;min-width:0}
+.pipe .price{font:700 1.2rem var(--f-display);color:var(--ink)}
+.pipe small{color:var(--muted)}
+.arrow{align-self:center;color:var(--muted);font-family:var(--f-mono);font-size:1.2rem}
+.plan{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:6px;background:var(--sunk);font-size:.88rem;margin-top:4px}
+.plan b{font-family:var(--f-mono);font-weight:500}
+.svc{display:grid;grid-template-columns:minmax(0,270px) minmax(0,1fr);gap:16px}
+.svc-list{display:grid;gap:4px;align-content:start}
+.svc-list button{text-align:left;border:1px solid transparent;background:none;border-radius:8px;padding:9px 10px;display:flex;gap:10px;align-items:center;color:var(--fg)}
+.svc-list button .n{font:500 .74rem var(--f-mono);color:var(--muted);width:22px}
+.svc-list button[aria-selected="true"]{background:var(--surface);border-color:var(--line);font-weight:600;color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0}
+.card header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.card td:first-child{width:27%;font:600 .7rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;padding-top:12px}
+
+/* work */
+.journey{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.jn{text-align:center;display:grid;gap:4px;justify-items:center;padding:10px 6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;min-width:0}
+.jn i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font:600 .85rem var(--f-mono);font-style:normal;background:var(--k)}
+.jn b{color:var(--k)}
+.jn span{font-size:.78rem;color:var(--muted)}
+.cycle{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.wk{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--k);border-radius:10px;padding:12px;min-width:0}
+.wk b{display:block;font-family:var(--f-display);color:var(--ink)}
+.wk ul{margin:6px 0 0;padding-left:16px;font-size:.86rem;color:var(--muted)}
+.example{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:18px;align-items:center}
+.gauge{display:grid;justify-items:center;gap:6px}
+.gauge svg{width:200px;height:auto}
+.ex-month{margin-top:10px}
+.team{display:flex;flex-direction:column;align-items:center;gap:10px}
+.team .lead{background:var(--ink);color:var(--paper);border-radius:10px;padding:10px 16px;font-weight:600;text-align:center}
+.team .row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;width:100%}
+.team .row div{border-radius:10px;padding:10px;text-align:center;color:#fff;font-weight:600;font-size:.86rem;background:var(--k)}
+.team .row div small{display:block;font-weight:400;opacity:.9}
+.hours{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.clock{font:700 1.5rem var(--f-display);color:var(--ink)}
+.qlist{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.qlist label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.qlist input{margin-top:4px;accent-color:var(--good)}
+
+/* toolkit */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
+.filters input[type=search]{flex:1;min-width:180px;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit}
+.method{border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:10px;overflow:hidden}
+.method summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:14px 16px}
+.method summary::-webkit-details-marker{display:none}
+.method .mn{font:600 .72rem var(--f-mono);background:var(--c5);color:#fff;border-radius:6px;padding:3px 8px;white-space:nowrap}
+.method .mt{font:700 1.02rem var(--f-display);color:var(--ink)}
+.method .chev{transition:transform .2s;color:var(--muted)}
+.method[open] .chev{transform:rotate(90deg)}
+.method .mb{padding:0 16px 16px;display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.method ol{margin:0;padding-left:20px;display:grid;gap:4px}
+.mfoot{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.86rem;background:var(--sunk);border-radius:8px;padding:10px 12px}
+.code{position:relative}
+.code pre{margin:0;background:var(--code-bg);color:var(--code-fg);font:400 .8rem/1.55 var(--f-mono);padding:14px 16px;border-radius:10px;overflow-x:auto;white-space:pre}
+.copy{position:absolute;top:8px;right:8px;font:500 .72rem var(--f-mono);border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:var(--code-fg);border-radius:6px;padding:4px 8px}
+
+/* money */
+.prices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.price-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:8px;align-content:start;min-width:0}
+.price-card.feat{border:2px solid var(--c6)}
+.price-card .amt{font:800 1.7rem var(--f-display);color:var(--ink)}
+.price-card .per{font-size:.8rem;color:var(--muted)}
+.price-card ul{margin:0;padding-left:16px;font-size:.86rem}
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.slider{display:grid;gap:4px;margin-bottom:12px}
+.slider label{display:flex;justify-content:space-between;gap:10px;font-size:.88rem}
+.slider output{font-family:var(--f-mono);color:var(--ink)}
+.slider input{width:100%;accent-color:var(--k,var(--signal))}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:.92rem}
+.kv span:nth-child(even){font-family:var(--f-mono);text-align:right;color:var(--ink)}
+.kv .tot{font-weight:700;border-top:1px solid var(--line);padding-top:6px}
+.marginbar{height:14px;border-radius:8px;background:var(--sunk);overflow:hidden;display:flex;margin:10px 0}
+.marginbar i{display:block;height:100%}
+
+/* funnel */
+.ftop{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.fgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+.funnelsvg{width:100%;height:auto;display:block}
+.results{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.results div{background:var(--sunk);border-radius:8px;padding:10px;display:grid;min-width:0}
+.results b{font:700 1.2rem var(--f-display);color:var(--ink)}
+.results span{font-size:.74rem;color:var(--muted)}
+.mfacts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+.mfacts .panel ul{margin:6px 0 0;padding-left:16px;font-size:.86rem}
+.ok{color:var(--good);font-weight:600}.no{color:var(--bad);font-weight:600}
+.life{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.life span.lc{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:.86rem}
+.life span.lc i{font-style:normal;font:500 .72rem var(--f-mono);color:var(--muted);margin-left:6px}
+
+/* scripts */
+.scripts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.script{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.script .txt{white-space:pre-wrap;font-size:.86rem;background:var(--sunk);border-radius:8px;padding:12px}
+.script .copy2{justify-self:start;border:1px solid var(--line);background:none;border-radius:8px;padding:6px 12px;font-size:.84rem}
+
+/* plan */
+.phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.phase{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--k);border-radius:12px;padding:16px;min-width:0}
+.phase h4{color:var(--k);margin:4px 0 8px}
+.phase ul{margin:0;padding-left:18px;font-size:.9rem;display:grid;gap:4px}
+.gate{margin-top:14px;padding:14px 16px;border:1.5px dashed var(--warn);border-radius:12px;max-width:80ch}
+.score{display:grid;gap:8px}
+.srow{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr) 46px;gap:12px;align-items:center;font-size:.9rem}
+.sbar{height:10px;background:var(--sunk);border-radius:6px;overflow:hidden}
+.sbar i{display:block;height:100%;background:var(--c9)}
+.final{margin-top:18px;padding:18px 20px;border-radius:14px;background:var(--ink);color:var(--paper)}
+.final b{color:var(--paper)}
+.final h3{color:var(--paper);margin:0 0 6px}
+
+/* glossary */
+.gloss{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.gloss div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.gloss b{display:block}
+.gloss span{font-size:.88rem;color:var(--muted)}
+.sources{columns:2;column-gap:28px;font-size:.84rem;padding-left:20px}
+.sources li{break-inside:avoid;margin-bottom:6px}
+.sources a{word-break:break-word}
+footer{border-top:1px solid var(--line);padding:22px max(16px,env(safe-area-inset-left,0px));color:var(--muted);font-size:.8rem;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:8px;font-size:.85rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.toast.show{opacity:1}
+
+/* responsive */
+@media (max-width:1060px){
+  .shell{grid-template-columns:1fr;gap:0}
+  .rail{position:sticky;top:56px;z-index:15;max-height:none;padding-block:8px;background:var(--paper);border-bottom:1px solid var(--line);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
+  .rail ol{display:flex;overflow-x:auto;gap:4px;scrollbar-width:none}
+  .rail a{display:flex;white-space:nowrap;padding:6px 10px}
+  .rail .railfoot{display:none}
+  html{scroll-padding-top:120px}
+  .hero{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .grid3,.signals,.scripts,.phases,.prices{grid-template-columns:1fr 1fr}
+  .grid4,.mfacts,.stats,.results{grid-template-columns:1fr 1fr}
+  .stops{grid-template-columns:1fr 1fr}.stops::before{display:none}
+  .steps5{grid-template-columns:1fr 1fr}
+  .pipeline{grid-template-columns:1fr}.arrow{transform:rotate(90deg);justify-self:center}
+  .svc,.calc,.fgrid,.example,.vs,.grid2{grid-template-columns:1fr}
+  .svc-list{grid-template-columns:1fr 1fr}
+  .journey{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cycle{grid-template-columns:1fr 1fr}
+  .team .row{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .gloss{grid-template-columns:1fr}
+  .sources{columns:1}
+}
+@media (max-width:480px){
+  .grid3,.signals,.scripts,.phases,.prices,.stops,.steps5,.cycle,.svc-list,.mfacts{grid-template-columns:1fr}
+  .journey,.team .row{grid-template-columns:1fr 1fr}
+  .srow{grid-template-columns:1fr 40px}.srow .sbar{grid-column:1/-1;grid-row:2}
+  .mfoot{grid-template-columns:1fr}
+  .top-sec{display:none}
+  body{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== v2 visual layer ===== */
+:root{--glow:rgba(47,95,224,.18);--band:#0a1330;--band2:#101c44;--bandfg:#e9eefb;--bandmuted:#9fb0d8;--lime:#b8f35a;--cyan:#46d7ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--glow:rgba(124,155,255,.18)}}
+:root[data-theme="dark"]{--glow:rgba(124,155,255,.18)}
+body{background-color:var(--paper);background-image:radial-gradient(var(--line) 1px,transparent 1.2px);background-size:22px 22px;background-attachment:fixed}
+main .chapter{position:relative}
+.heroband{position:relative;overflow:hidden;background:radial-gradient(1200px 500px at 85% 20%,#1b3a8f 0%,transparent 60%),radial-gradient(800px 400px at 10% 110%,#0e5a6b 0%,transparent 60%),linear-gradient(160deg,var(--band),var(--band2));color:var(--bandfg);border-bottom:1px solid #22305a}
+.heroband canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.95}
+.heroin{position:relative;max-width:1320px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:34px 40px}
+.heroband .hero{padding-block:30px 26px}
+.heroband .hero h1{color:#fff;font-size:clamp(2.5rem,6vw,4.6rem)}
+.heroband .hero h1 em{background:linear-gradient(90deg,var(--cyan),var(--lime));-webkit-background-clip:text;background-clip:text;color:transparent}
+.heroband .eyebrow{color:var(--bandmuted)}
+.heroband .lede{color:var(--bandmuted)}
+.heroband .btn{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(6px)}
+.heroband .btn.primary{background:linear-gradient(90deg,#3d6bff,#2fb8ff);border:0;box-shadow:0 10px 30px -10px rgba(61,107,255,.8)}
+.heroband .btn:hover{transform:translateY(-1px)}
+.heroband .demo{background:rgba(10,19,48,.55);border-color:rgba(255,255,255,.14);backdrop-filter:blur(10px);box-shadow:0 30px 60px -30px rgba(0,0,0,.8),0 0 0 1px rgba(70,215,255,.08)}
+.heroband .demo .bar{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)}
+.heroband .demo .dots i{background:rgba(255,255,255,.25)}
+.heroband .demo select{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#fff}
+.heroband .demo option{color:#111}
+.heroband .bubble{color:var(--bandmuted)}
+.heroband .ans{color:#e9eefb}
+.heroband .ans mark{background:rgba(124,155,255,.22);color:#fff}
+.heroband .ans mark.you{background:rgba(184,243,90,.25);color:#fff;box-shadow:0 0 0 1px rgba(184,243,90,.5)}
+.heroband .src-chips span{border-color:rgba(255,255,255,.18);color:var(--bandmuted)}
+.heroband .verdict.no{color:#ff8b9a}.heroband .verdict.yes{color:var(--lime)}
+.heroband .seg{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.16)}
+.heroband .seg button{color:var(--bandmuted)}
+.heroband .seg button[aria-pressed="true"]{background:#fff;color:var(--band)}
+.heroband .stats .stat{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);backdrop-filter:blur(6px)}
+.heroband .stats .stat b{color:#fff;font-size:2rem;background:linear-gradient(90deg,#fff,#a9c3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.heroband .stats .stat span{color:var(--bandmuted)}.heroband .stats .stat span b{font-size:inherit;background:none;-webkit-text-fill-color:var(--lime);color:var(--lime)}
+.heroband .live{display:inline-flex;align-items:center;gap:8px;font:500 .72rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--lime);margin-top:18px}
+.heroband .live i{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(184,243,90,.6);animation:ping 1.8s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(184,243,90,.6)}80%{box-shadow:0 0 0 10px rgba(184,243,90,0)}100%{box-shadow:0 0 0 0 rgba(184,243,90,0)}}
+
+/* chapter numbers */
+.chhead{position:relative;padding-top:6px}
+.chnum{position:absolute;right:0;top:-18px;font:800 clamp(4rem,9vw,7.5rem)/1 var(--f-display);color:transparent;-webkit-text-stroke:1.5px var(--k);opacity:.28;pointer-events:none;letter-spacing:-.04em}
+.chhead h2{font-size:clamp(1.8rem,3.6vw,2.7rem);max-width:22ch}
+.chhead .tag i{width:30px;height:5px;background:linear-gradient(90deg,var(--k),transparent)}
+.chapter::after{content:"";position:absolute;left:0;top:-1px;height:2px;width:120px;background:linear-gradient(90deg,var(--k),transparent)}
+
+/* surfaces */
+.panel,.stat,.sig,.stop,.price-card,.script,.phase,.wk,.s5,.jn,.pipe,.card,.method,.tbl,.mfacts .panel,.gloss div{box-shadow:0 1px 0 rgba(15,27,61,.03),0 12px 28px -22px rgba(15,27,61,.35)}
+.sig,.stop,.price-card,.script,.phase,.wk,.s5,.jn,.pipe,.stat{transition:transform .2s ease,box-shadow .2s ease,border-color .2s}
+.sig:hover,.stop:hover,.price-card:hover,.script:hover,.phase:hover,.wk:hover,.s5:hover,.jn:hover,.pipe:hover,main .stat:hover{transform:translateY(-3px);box-shadow:0 18px 40px -22px var(--k,rgba(15,27,61,.5)),0 0 0 1px color-mix(in srgb,var(--k,var(--signal)) 25%,transparent)}
+.price-card.feat{background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,var(--c6),var(--cyan)) border-box;border:2px solid transparent;transform:translateY(-6px);box-shadow:0 24px 50px -28px var(--c6)}
+.price-card .amt{font-size:2.1rem;letter-spacing:-.02em}
+.stop .dot{box-shadow:0 0 0 4px color-mix(in srgb,var(--k) 18%,transparent)}
+.stops::before{background:linear-gradient(90deg,var(--k),color-mix(in srgb,var(--k) 20%,var(--line)))}
+.rm-detail{background:linear-gradient(120deg,color-mix(in srgb,var(--k) 7%,var(--surface)),var(--surface) 55%)}
+.final{background:radial-gradient(600px 200px at 90% 0%,#1b3a8f,transparent 70%),linear-gradient(135deg,#0a1330,#132560);color:#e9eefb;box-shadow:0 30px 60px -30px rgba(10,19,48,.8)}
+.final h3,.final b{color:#fff}
+.method[open]{box-shadow:0 0 0 1.5px var(--c5),0 20px 40px -26px var(--c5)}
+.method summary:hover .mt{color:var(--signal)}
+.code pre{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.tbl tbody tr{transition:background .15s}
+.tbl tbody tr:hover td{background:color-mix(in srgb,var(--k,var(--signal)) 6%,var(--surface))}
+.seg button{transition:background .2s,color .2s}
+.btn{transition:transform .15s,box-shadow .2s}
+.rail a{transition:background .2s,color .2s}
+.rail a.on .n{color:var(--k)}
+.topbar{box-shadow:0 1px 0 var(--line)}
+.readbar{background:linear-gradient(90deg,var(--signal),var(--cyan),var(--lime));height:3px}
+.ring{width:28px;height:28px;flex:none}
+.results div{background:linear-gradient(160deg,color-mix(in srgb,var(--k) 9%,var(--surface)),var(--sunk))}
+.results b{font-size:1.45rem}
+.team .lead{background:linear-gradient(135deg,#0a1330,#1b3a8f);color:#fff;box-shadow:0 12px 26px -16px #1b3a8f}
+.team .row div{box-shadow:0 10px 22px -16px var(--k)}
+.callout{background:linear-gradient(110deg,color-mix(in srgb,var(--k,var(--signal)) 8%,var(--surface)),var(--surface) 60%)}
+.oneline{background:linear-gradient(110deg,color-mix(in srgb,var(--k,var(--signal)) 10%,var(--surface)),var(--surface) 70%)}
+@media (max-width:1060px){.heroband .hero{grid-template-columns:1fr}}
+@media (max-width:820px){.heroband .stats{grid-template-columns:1fr 1fr}.chnum{font-size:4rem;top:-6px}}
+@media (prefers-reduced-motion:reduce){.heroband .live i{animation:none}.price-card.feat{transform:none}}
+
+.lp-prog{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:4px 0 14px}
+.levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.lvl{display:grid;gap:10px;align-content:start;min-width:0}
+.lvl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:10px 12px;border-radius:10px;background:linear-gradient(110deg,color-mix(in srgb,var(--lc) 16%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--lc) 35%,var(--line))}
+.lvl-h b{color:var(--lc);font-family:var(--f-display)}
+.lvl-h span{font:500 .72rem var(--f-mono);color:var(--muted)}
+.lt{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px;min-width:0;box-shadow:0 12px 28px -22px rgba(15,27,61,.35);transition:transform .2s,box-shadow .2s}
+.lt:hover{transform:translateY(-2px);box-shadow:0 16px 34px -22px var(--lc)}
+.lt.done{border-color:var(--good);background:linear-gradient(110deg,color-mix(in srgb,var(--good) 9%,var(--surface)),var(--surface) 60%)}
+.lt-top{display:flex;justify-content:space-between;gap:8px;align-items:start}
+.lt-top h4{font-size:.98rem}
+.lt .hrs{font:500 .72rem var(--f-mono);padding:2px 8px;border-radius:20px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.lt .why{font-size:.84rem;color:var(--muted);margin:0}
+.lt ul{margin:0;padding-left:16px;font-size:.84rem}
+.lt .where{font-size:.82rem}
+.lt .test{font-size:.82rem;background:var(--sunk);border-radius:8px;padding:7px 10px}
+.lt .test b{color:var(--lc)}
+.lt .roles{display:flex;flex-wrap:wrap;gap:4px}
+.lt .roles span{font:500 .66rem var(--f-mono);padding:2px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+.lt label{display:flex;gap:8px;align-items:center;font-size:.84rem;font-weight:600;color:var(--ink);cursor:pointer}
+.lt label input{width:16px;height:16px;accent-color:var(--good)}
+@media (max-width:980px){.levels{grid-template-columns:1fr}}
+
+.cycle.five{grid-template-columns:repeat(5,minmax(0,1fr))}
+.prices.five{grid-template-columns:repeat(5,minmax(0,1fr))}
+.method .mb{grid-template-columns:minmax(0,1fr)}
+.sig .good::before{content:"Example: "}
+.steps6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.dsteps{display:grid;gap:6px;margin-top:6px}
+.dsteps div{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:start;font-size:.88rem}
+.dsteps i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:600 .72rem var(--f-mono);background:rgba(255,255,255,.12);color:#fff}
+.dsteps .t{font:500 .72rem var(--f-mono);color:#9fb0d8;white-space:nowrap}
+.dsteps .hu{color:#ffb27a}
+.gapcalc{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px}
+.gapout{display:grid;gap:12px;align-content:start}
+.gscore{display:flex;align-items:center;gap:16px}
+.gscore b{font:800 3rem var(--f-display);color:var(--ink);line-height:1}
+.verdictpill{display:inline-block;padding:6px 12px;border-radius:999px;font-weight:700;font-size:.9rem;color:#fff}
+.ind{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:16px}
+.stars{color:var(--warn);letter-spacing:2px}
+@media (max-width:1060px){.prices.five{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:820px){.cycle.five,.prices.five,.steps6{grid-template-columns:1fr 1fr}.gapcalc,.ind{grid-template-columns:1fr}}
+@media (max-width:480px){.cycle.five,.prices.five,.steps6{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="in">
+  <a class="brand" href="#top">AI<span>/</span>Agents Playbook</a>
+  <div class="top-sec" id="topSec">Start here</div>
+  <svg class="ring" viewBox="0 0 36 36" aria-label="Reading progress"><circle cx="18" cy="18" r="15" fill="none" stroke="var(--line)" stroke-width="4"/><circle id="ringFg" cx="18" cy="18" r="15" fill="none" stroke="var(--signal)" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.25" stroke-dashoffset="94.25" transform="rotate(-90 18 18)"/></svg>
+  <button class="iconbtn" id="themeBtn" aria-label="Switch colour theme">Theme: auto</button>
+  <i class="readbar" id="readbar"></i>
+</div></div>
+
+
+<div class="heroband"><canvas id="radar" aria-hidden="true"></canvas><div class="heroin">
+<section class="hero" aria-label="Introduction">
+  <div>
+    <div class="eyebrow">New venture playbook · run from Lahore · sold to the US, UK and Europe</div>
+    <h1 style="margin-top:12px">Turn repetitive work into <em>AI agents</em> that never sleep.</h1>
+    <p class="lede">Every company has people copying data between apps, typing PDFs into systems and building the same Excel report every week. This playbook explains automation, custom AI assistants and AI agents from zero, shows where the gaps are, which industries to target, how finance teams use agents, and how we sell and deliver from Lahore.</p>
+    <div class="cta"><a class="btn primary" href="#roadmap">Start the roadmap →</a><a class="btn" href="#gaps">Score a task with the Gap Score</a></div>
+    <div class="live"><i></i>Background radar: an agent picking up tasks from apps and finishing them</div>
+  </div>
+  <div class="demo" aria-label="Interactive agent demo">
+    <div class="bar"><div class="dots"><i></i><i></i><i></i></div><span class="eyebrow">Try it: manual vs agent</span></div>
+    <div class="body">
+      <label for="demoQ" class="eyebrow">Pick a repetitive task</label>
+      <select id="demoQ"></select>
+      <div class="seg" id="demoSeg" aria-label="Manual or agent"><button aria-pressed="true" data-v="before">Done by a person</button><button aria-pressed="false" data-v="after">Done by an agent</button></div>
+      <div class="bubble" id="demoEngine"></div>
+      <div class="ans" id="demoAns"></div>
+      <div class="src-chips" id="demoSrc"></div>
+      <div class="verdict" id="demoVerdict"></div>
+    </div>
+  </div>
+</section>
+<div class="stats">
+  <div class="stat"><b>$52.6B</b><span>AI agents market by 2030, from $7.8B in 2025 (MarketsandMarkets)</span></div>
+  <div class="stat"><b>30%</b><span>of work hours could be automated by 2030 (McKinsey)</span></div>
+  <div class="stat"><b>~60%</b><span>gross margin target after Lahore salaries</span></div>
+  <div class="stat"><b>4.35/5</b><span>our venture score: <b>GO</b></span></div>
+</div>
+</div></div>
+<div class="shell" id="top">
+<nav class="rail" aria-label="Chapters"><ol id="railList"></ol>
+  <div class="railfoot">Figures marked <b>approx.</b> are estimates. Prices and tools change often. As of October 2026.</div>
+</nav>
+<main>
+
+<!-- 01 ROADMAP -->
+<section class="chapter" id="roadmap" style="--k:var(--ink)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 01 · Start here</span>
+    <h2>Your roadmap from zero to a running business</h2>
+    <p class="lead">Written for someone who has never built an automation. Follow the 12 stops in order. Click a stop to see what to do, the tools, the time and when it counts as done. Progress is saved in this browser.</p></div>
+  <div class="rm-progress"><span class="mono" id="rmText">0 of 12 done</span><div class="rm-bar"><i id="rmBar"></i></div><button class="iconbtn" id="rmReset">Clear progress</button></div>
+  <div class="road" id="road"></div>
+  <div class="panel rm-detail" id="rmDetail" aria-live="polite"></div>
+  <div class="callout" style="--k:var(--ink)"><b>The golden rule</b>Automate our own company first. Our dispatch, brokerage and content teams have dozens of repetitive tasks. Automating 3 of them gives real skill, real "hours saved" numbers and two live demos (freight and finance) before we sell to anyone.</div>
+</section>
+
+<!-- 02 BASICS -->
+<section class="chapter" id="basics" style="--k:var(--c1)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 02 · The basics</span>
+    <h2>Automation, custom AI assistants and AI agents</h2>
+    <p class="lead">Many office workers spend hours a day as a copy-paste bridge between two systems. Automation builds that bridge in software. AI makes it smart enough to read messy emails and PDFs. Agents let software finish a whole multi-step job and ask a person only when something is unusual.</p></div>
+  <h3>The four levels</h3>
+  <div class="grid4">
+    <div class="sig" style="--k:var(--muted)"><h4>1 · Rule automation</h4><p class="small">IF this happens, THEN do that. No AI.</p><div class="good">New form → sheet → email team</div><p class="small muted" style="margin-top:8px">Build: $500–$1,500</p></div>
+    <div class="sig" style="--k:var(--c1)"><h4>2 · AI automation</h4><p class="small">A fixed workflow with one AI step that reads, writes or sorts.</p><div class="good">Invoice email → AI reads PDF → QuickBooks</div><p class="small muted" style="margin-top:8px">Build: $1,500–$5,000</p></div>
+    <div class="sig" style="--k:var(--c3)"><h4>3 · Custom AI assistant</h4><p class="small">Answers questions from the company's own files and systems.</p><div class="good">"What's our refund policy for order 1042?" in Slack</div><p class="small muted" style="margin-top:8px">Build: $3,000–$8,000</p></div>
+    <div class="sig" style="--k:var(--c4)"><h4>4 · AI agent</h4><p class="small">Gets a goal and tools; decides its steps in a loop; humans approve exceptions.</p><div class="good">"Qualify this lead and book a meeting"</div><p class="small muted" style="margin-top:8px">Build: $5,000–$15,000</p></div>
+  </div>
+  <p class="srcline" style="margin-top:8px">Price ranges: Vantaige 2026 AI automation rate card (market-observed agency ranges, not guarantees).</p>
+  <h3>How an AI agent works</h3>
+  <div class="steps6">
+    <div class="s5" style="--k:var(--ink)"><b>1 · Goal</b><p>"Process today's invoices"</p></div>
+    <div class="s5" style="--k:var(--c1)"><b>2 · Plan</b><p>The AI brain (GPT, Claude) decides the next step</p></div>
+    <div class="s5" style="--k:var(--c2)"><b>3 · Use a tool</b><p>Read email, query the ERP, write a sheet</p></div>
+    <div class="s5" style="--k:var(--c3)"><b>4 · Check</b><p>Did it work? Any exception?</p></div>
+    <div class="s5" style="--k:var(--c6)"><b>5 · Repeat / finish</b><p>Loop until done; hand edge cases to a person</p></div>
+    <div class="s5" style="--k:var(--c8)"><b>Guardrails</b><p>Limits, approvals, logs. Never pays money alone</p></div>
+  </div>
+  <div class="oneline"><b>In one line:</b> an automation follows a fixed path you drew; an agent chooses its own path toward a goal, inside limits you set.</div>
+  <h3>What a custom AI assistant is</h3>
+  <p>A custom AI assistant is like ChatGPT, but it knows your company. It is connected to the company's documents (SOPs, policies, prices, contracts) and live systems (CRM, TMS, accounting), and answers in Slack, Teams, email or on the website, with sources. The pattern is called <b>RAG</b> (retrieval-augmented generation): the AI looks things up before answering.</p>
+  <div class="tbl"><table><thead><tr><th>Plain ChatGPT</th><th>Custom AI assistant</th></tr></thead><tbody>
+    <tr><td>Knows the internet, not your company</td><td>Knows your SOPs, prices, policies, clients and history</td></tr>
+    <tr><td>Staff copy-paste data into it</td><td>Connected directly to CRM, TMS, accounting, shared drives</td></tr>
+    <tr><td>Everyone sees the same thing</td><td>Respects permissions: a dispatcher can't see payroll</td></tr>
+    <tr><td>No company log</td><td>Every question and answer logged and reviewed</td></tr>
+    <tr><td>Answers can drift from policy</td><td>Grounded in approved documents, with sources</td></tr>
+    <tr><td>Lives in a browser tab</td><td>Lives where work happens: Slack, Teams, email, website, phone</td></tr>
+  </tbody></table></div>
+  <h3>How agents handle repeated tasks</h3>
+  <div class="tbl"><table><thead><tr><th>Rhythm</th><th>Triggered by</th><th>Examples</th></tr></thead><tbody>
+    <tr><td><b>Instant</b></td><td>New email, form, file, order or webhook</td><td>Invoice arrives → bill drafted; new lead → reply in 2 minutes</td></tr>
+    <tr><td><b>Every few minutes</b></td><td>Checking a system for changes</td><td>New loads on a board; TMS status changes</td></tr>
+    <tr><td><b>Daily</b></td><td>Schedule (e.g. 7 am)</td><td>Bank reconciliation; overdue invoice reminders; check-call summaries</td></tr>
+    <tr><td><b>Weekly / monthly</b></td><td>Schedule + calendar</td><td>Monday KPI report; month-end checklist; variance commentary</td></tr>
+    <tr><td><b>On request</b></td><td>A person asks in Slack/Teams</td><td>"Summarise this contract"; "Draft the client update"</td></tr>
+  </tbody></table></div>
+  <p>Agents work through a <b>queue</b>: each invoice, lead or load is processed the same way, retried if a system is down, and sent to a person when confidence is low.</p>
+  <h3>The tools</h3>
+  <div class="tbl"><table><thead><tr><th>Tool</th><th>Best for</th><th>Price (approx.)</th><th>Note</th></tr></thead><tbody>
+    <tr><td><b>Zapier</b></td><td>Simple jobs, 7,000+ apps</td><td class="num">Free; from ≈ $20/mo</td><td>Easiest; costly at high volume</td></tr>
+    <tr><td><b>Make</b></td><td>Visual, medium complexity</td><td class="num">Free; from ≈ $9/mo</td><td>Cheap; each step is an operation</td></tr>
+    <tr><td><b>n8n</b></td><td>Complex workflows and AI agents</td><td class="num">Self-host free; cloud ≈ $22/mo</td><td>Billed per run; our main tool</td></tr>
+    <tr><td><b>Vapi / Retell</b></td><td>AI phone calls</td><td class="num">Per minute</td><td>Receptionist, reminders, check calls</td></tr>
+    <tr><td><b>OpenAI / Anthropic / Google</b></td><td>The AI brain</td><td class="num">Per usage</td><td>Billed to client at cost + 15%</td></tr>
+    <tr><td><b>Supabase / Pinecone</b></td><td>Memory and document search</td><td class="num">Free tier + usage</td><td>Needed for assistants (RAG)</td></tr>
+  </tbody></table></div>
+  <div class="callout" style="--k:var(--bad)"><b>What agents are not good at (yet)</b>Decisions with legal, medical or big financial consequences without a human check; tasks with no written rules; paper-only work; being 100% accurate. Plan for 90–98% accuracy plus human review of exceptions.</div>
+</section>
+
+<!-- 03 WHY -->
+<section class="chapter" id="why" style="--k:var(--c2)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 03 · Why companies need it</span>
+    <h2>The business case and the market</h2>
+    <p class="lead">Big companies have IT teams. The gap is the small and mid-size firm (10–500 staff) with the same repetitive work and no one to build automations.</p></div>
+  <div class="grid4">
+    <div class="stat" style="border-top:4px solid var(--c1)"><b>$7.8B → $52.6B</b><span>AI agents market 2025 → 2030, ≈ 46% a year</span></div>
+    <div class="stat" style="border-top:4px solid var(--c2)"><b>40%</b><span>of enterprise apps with task-specific agents by end 2026, from &lt;5% (Gartner)</span></div>
+    <div class="stat" style="border-top:4px solid var(--c4)"><b>62%</b><span>of organisations engaged with AI agents (McKinsey)</span></div>
+    <div class="stat" style="border-top:4px solid var(--good)"><b>120k+</b><span>US accounting and auditing openings a year (BLS, via Beancount)</span></div>
+  </div>
+  <h3>Why companies need automation and agents</h3>
+  <div class="tbl"><table><thead><tr><th>Pain</th><th>What it costs</th><th>What we change</th></tr></thead><tbody>
+    <tr><td><b>Staff shortage</b></td><td>Accounting, dispatch and admin roles are hard to fill</td><td>Agents do the repetitive part; staff do review and judgement</td></tr>
+    <tr><td><b>High salaries</b></td><td>A US admin or AP clerk often costs $45,000–$60,000+ a year (approx.)</td><td>One build can remove 10–30 hours a week of that work</td></tr>
+    <tr><td><b>Slow response</b></td><td>Leads go cold; customers wait</td><td>Replies in minutes, 24/7</td></tr>
+    <tr><td><b>Errors</b></td><td>Typos in invoices, wrong rates, missed renewals</td><td>Same rules every time, with checks</td></tr>
+    <tr><td><b>No visibility</b></td><td>Reports built by hand, always late</td><td>Live dashboards and daily summaries</td></tr>
+    <tr><td><b>Growth limits</b></td><td>More volume means more hires</td><td>Volume grows without the same hiring</td></tr>
+  </tbody></table></div>
+  <h3>Why a custom agent instead of off-the-shelf software</h3>
+  <div class="grid3">
+    <div class="panel"><h4>Their process is unique</h4><p class="small">Off-the-shelf tools cover about 60%. The last 40%, with its exceptions and odd systems, is where the hours are.</p></div>
+    <div class="panel"><h4>Their systems don't talk</h4><p class="small">TMS, QuickBooks, Gmail, Excel and a portal: an agent connects all of them.</p></div>
+    <div class="panel"><h4>Cheaper than a hire</h4><p class="small">A $6,000 build plus $1,200 a month is far less than a US hire, and it runs 24/7.</p></div>
+  </div>
+  <h3>A simple ROI example (made-up client)</h3>
+  <div class="tbl"><table><thead><tr><th>Item</th><th>Before</th><th>After automation</th></tr></thead><tbody>
+    <tr><td>Invoices per month</td><td class="num">1,200</td><td class="num">1,200</td></tr>
+    <tr><td>Minutes per invoice</td><td class="num">6</td><td class="num">1 (exceptions only)</td></tr>
+    <tr><td>Staff hours per month</td><td class="num">120</td><td class="num">20</td></tr>
+    <tr><td>Cost at $30/hour (US)</td><td class="num">$3,600/mo</td><td class="num">$600/mo</td></tr>
+    <tr><td>Our price</td><td>–</td><td class="num">$6,000 build + $1,200/mo</td></tr>
+    <tr><td>Client saving</td><td>–</td><td class="num">≈ $1,800/mo after our fee; payback ≈ 3–4 months</td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- 04 GAPS -->
+<section class="chapter" id="gaps" style="--k:var(--c3)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 04 · Where to find the gap</span>
+    <h2>Spot repetitive work worth automating</h2>
+    <p class="lead">Use the 10 signals to find companies with a gap, then score each task with the Gap Score. Try the calculator: pick an example or move the sliders.</p></div>
+  <h3>Gap Score calculator</h3>
+  <div class="gapcalc">
+    <div class="panel" id="gapIn" style="--k:var(--c3)"></div>
+    <div class="panel gapout" id="gapOut"></div>
+  </div>
+  <h3>The 10 signals that a company has a gap</h3>
+  <div class="tbl"><table><thead><tr><th>Signal</th><th>What it looks like</th><th>Where you can see it from outside</th></tr></thead><tbody>
+    <tr><td><b>Job ads for repetitive roles</b></td><td>Hiring "data entry", "AP clerk", "billing specialist", "dispatcher", "admin coordinator"</td><td>Indeed, LinkedIn Jobs, careers pages</td></tr>
+    <tr><td><b>Excel everywhere</b></td><td>Reports, trackers, rate sheets built by hand</td><td>Job ads asking for "advanced Excel"</td></tr>
+    <tr><td><b>PDFs typed into systems</b></td><td>Invoices, rate cons, purchase orders, forms</td><td>Job ads mentioning "data entry from documents"</td></tr>
+    <tr><td><b>Same email answered 20 times</b></td><td>Order status, quotes, "where is my load"</td><td>Slow replies to a test enquiry</td></tr>
+    <tr><td><b>Two systems with no link</b></td><td>Copying CRM to accounting, TMS to QuickBooks</td><td>Tech stack in job ads, BuiltWith, G2 reviews</td></tr>
+    <tr><td><b>Missed calls and slow leads</b></td><td>No reply after hours</td><td>Call at 7 pm; submit a test form</td></tr>
+    <tr><td><b>Month-end takes 10+ days</b></td><td>Manual close and reports</td><td>Finance job ads; CFO posts</td></tr>
+    <tr><td><b>Growing fast</b></td><td>More volume than staff</td><td>Funding news, new locations, hiring sprees</td></tr>
+    <tr><td><b>Bad reviews about speed</b></td><td>"Never called back"</td><td>Google, Yelp, Trustpilot</td></tr>
+    <tr><td><b>Owner doing admin</b></td><td>Founder sends invoices at night</td><td>Discovery call</td></tr>
+  </tbody></table></div>
+  <div class="callout" style="--k:var(--c3)"><b>The strongest signal: job ads</b>A company hiring a "data entry clerk" is telling the world it has repetitive work and a $40,000–$60,000 budget for it. That job ad is our lead list: we send a 2-minute video showing how we'd automate 3 tasks from the job description.</div>
+  <h3>The 15 most automatable tasks</h3>
+  <div class="tbl"><table><thead><tr><th>Department</th><th>Tasks</th></tr></thead><tbody>
+    <tr><td><b>Finance &amp; admin</b></td><td>Invoice entry (AP); bank and card reconciliation; overdue reminders (AR); receipt matching; month-end checklists</td></tr>
+    <tr><td><b>Operations</b></td><td>Documents into systems (rate cons, POs, forms); customer status updates; scheduling support; compliance and certificate tracking</td></tr>
+    <tr><td><b>Sales &amp; leads</b></td><td>Lead capture, enrichment, routing; instant first reply and qualification; booking and CRM updates</td></tr>
+    <tr><td><b>Support</b></td><td>Ticket triage; draft replies for common questions</td></tr>
+    <tr><td><b>Reporting</b></td><td>Weekly KPI reports and dashboards built automatically</td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- 05 INDUSTRIES -->
+<section class="chapter" id="industries" style="--k:var(--c4)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 05 · Industries and sectors</span>
+    <h2>Which industries to target, and where to find them</h2>
+    <p class="lead">Pick an industry to see what to automate, who buys, where they gather, the typical first deal and what to watch. Our three beachheads: freight and logistics, finance and accounting, and B2B sales operations.</p></div>
+  <div class="filters"><div class="seg" id="indSeg"><button data-f="all" aria-pressed="true">All industries</button><button data-f="top" aria-pressed="false">Top fit (★5)</button><button data-f="easy" aria-pressed="false">Low compliance load</button></div></div>
+  <div class="ind"><div class="svc-list" id="indList" role="tablist" aria-label="Industries"></div><div class="card" id="indCard"></div></div>
+</section>
+
+<!-- 06 FINANCE -->
+<section class="chapter" id="finance" style="--k:var(--c2)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 06 · Finance and back-office agents</span>
+    <h2>Replacing Excel-heavy finance work</h2>
+    <p class="lead">Most firms with $2M–$50M revenue still close the month, reconcile accounts and build reports by hand. Agents do the repetitive parts; people keep approvals and judgement.</p></div>
+  <div class="tbl"><table><thead><tr><th>Use case</th><th>What the agent does</th><th>Human keeps</th><th>Time saved (est.)</th></tr></thead><tbody>
+    <tr><td><b>AP invoice processing</b></td><td>Reads invoices, 3-way match, flags duplicates, drafts bills</td><td>Approves exceptions and payments</td><td class="num">70–85%</td></tr>
+    <tr><td><b>Bank and card reconciliation</b></td><td>Matches transactions daily, suggests categories</td><td>Reviews unmatched items</td><td class="num">50–70%</td></tr>
+    <tr><td><b>AR collections</b></td><td>Scheduled reminders, logs replies, escalates</td><td>Handles disputes</td><td class="num">60–80%</td></tr>
+    <tr><td><b>Month-end close assistant</b></td><td>Runs the checklist, pulls balances, chases owners</td><td>Signs off the close</td><td class="num">2–4 days faster</td></tr>
+    <tr><td><b>Variance commentary</b></td><td>Actual vs budget, first-draft explanations</td><td>Edits and approves</td><td class="num">50–70%</td></tr>
+    <tr><td><b>13-week cash forecast</b></td><td>Pulls AR, AP and bank data weekly</td><td>Adjusts assumptions</td><td class="num">Hours → minutes</td></tr>
+    <tr><td><b>Expense audit</b></td><td>Checks receipts against policy, flags outliers</td><td>Decides on flagged items</td><td class="num">60–80%</td></tr>
+    <tr><td><b>Management pack</b></td><td>Builds the monthly pack from live data</td><td>Reviews the story</td><td class="num">1–2 days/month</td></tr>
+    <tr><td><b>CPA client documents</b></td><td>Requests, tracks and files client documents</td><td>Checks completeness</td><td class="num">50–70%</td></tr>
+  </tbody></table></div>
+  <p class="srcline">Time-saved figures are our planning estimates; measure them in the audit.</p>
+  <h3>How an AP invoice agent works</h3>
+  <div class="steps6">
+    <div class="s5" style="--k:var(--muted)"><b>Inbox</b><p>Invoices by email or portal</p></div>
+    <div class="s5" style="--k:var(--c1)"><b>Read</b><p>AI extracts vendor, lines, totals, tax</p></div>
+    <div class="s5" style="--k:var(--c2)"><b>Match</b><p>PO + receipt + bill (3-way)</p></div>
+    <div class="s5" style="--k:var(--c4)"><b>Rules</b><p>Duplicate? Over limit? New vendor?</p></div>
+    <div class="s5" style="--k:var(--c6)"><b>Post</b><p>Draft bill in QBO / Xero / NetSuite</p></div>
+    <div class="s5" style="--k:var(--c3)"><b>Report</b><p>Daily summary + exceptions</p></div>
+  </div>
+  <h3>The finance analysis agent: from Excel to answers</h3>
+  <div class="grid2">
+    <div class="panel"><h4>Ask in plain English</h4><ul class="small" style="padding-left:18px;margin:8px 0 0"><li>"Why is gross margin down 3 points this month?"</li><li>"Which customers are over 60 days late?"</li><li>"What does cash look like in 6 weeks if payroll rises 10%?"</li><li>"Draft this month's variance commentary."</li></ul></div>
+    <div class="panel"><h4>How it's built</h4><ul class="small" style="padding-left:18px;margin:8px 0 0"><li><b>Data:</b> QuickBooks, Xero, NetSuite, Stripe, bank feeds</li><li><b>Automation:</b> n8n scheduled pulls, checks, alerts</li><li><b>Calculation:</b> Python or SQL (AI explains, code calculates)</li><li><b>Delivery:</b> Slack/Teams assistant, email summary, Power BI or Looker Studio</li></ul></div>
+  </div>
+  <div class="callout" style="--k:var(--bad)"><b>Finance guardrails (non-negotiable)</b>The agent never sends payments or posts final journal entries without approval. Read-only first; drafts only. Segregation of duties. Full audit trail. Calculations by code, not the AI model. Follow the client's SOX controls where they apply.</div>
+</section>
+
+<!-- 07 SERVICES -->
+<section class="chapter" id="services" style="--k:var(--c3)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 07 · The services</span>
+    <h2>What the client buys</h2>
+    <p class="lead">Every client starts with an audit, then a build, then a monthly care plan. AI and tool costs are billed at cost + 15%. Pick a service to see its full card.</p></div>
+  <div class="pipeline">
+    <div class="pipe"><span class="eyebrow">Step 1 · Fixed price</span><span class="price mono">$500–$1,500 audit</span><small>Task inventory, Gap Scores, ROI and a fixed quote. Credited to the first build.</small></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="pipe"><span class="eyebrow">Step 2 · Build</span><span class="price mono">$750–$15,000</span><small>Quick wins, workflow packs, document AI, assistants or agents. 50% deposit.</small></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="pipe"><span class="eyebrow">Step 3 · Care plan</span>
+      <div class="plan"><span>Basic · 1–2 flows</span><b>$400</b></div>
+      <div class="plan"><span>Growth · 3–8 flows</span><b>$1,200</b></div>
+      <div class="plan"><span>Ops · SLA + strategy</span><b>$2,500</b></div></div>
+  </div>
+  <div class="svc"><div class="svc-list" id="svcList" role="tablist" aria-label="Services"></div><div class="card" id="svcCard"></div></div>
+</section>
+
+<!-- 08 WORK -->
+<section class="chapter" id="work" style="--k:var(--c4)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 08 · How the work gets done</span>
+    <h2>From signal to a running agent</h2>
+    <p class="lead">Every build follows the same six steps. "Shadow mode" means the automation runs next to staff for 1–2 weeks before it goes fully live.</p></div>
+  <div class="journey">
+    <div class="jn" style="--k:var(--c1)"><i>1</i><b>Discover</b><span>Interview staff; list tasks and hours</span></div>
+    <div class="jn" style="--k:var(--c2)"><i>2</i><b>Map</b><span>Draw the process; Gap Score</span></div>
+    <div class="jn" style="--k:var(--c3)"><i>3</i><b>Design</b><span>Tools, rules, prompts, approvals</span></div>
+    <div class="jn" style="--k:var(--c4)"><i>4</i><b>Build</b><span>n8n flows, AI steps, error handling</span></div>
+    <div class="jn" style="--k:var(--c8)"><i>5</i><b>Test</b><span>50+ real samples; shadow mode</span></div>
+    <div class="jn" style="--k:var(--c6)"><i>6</i><b>Run</b><span>Alerts, monthly review, care plan</span></div>
+  </div>
+  <h3>Worked example: "Ridgeline Freight" (made-up broker)</h3>
+  <p>A 15-person US freight broker. Move through the periods to see what we built and how many staff hours a week were saved. All numbers are invented.</p>
+  <div class="panel"><div class="example">
+    <div><div class="seg" id="exSeg"></div><div class="ex-month" id="exText"></div></div>
+    <div class="gauge" id="exGauge"></div>
+  </div></div>
+  <h3>The team in Lahore (first 10 clients)</h3>
+  <div class="panel"><div class="team">
+    <div class="lead">Automation Lead / Architect · 1</div>
+    <div class="row">
+      <div style="--k:var(--c7)">Business Analyst<small>1 · audits, client</small></div>
+      <div style="--k:var(--c1)">n8n / Make Builders<small>3 · build, test</small></div>
+      <div style="--k:var(--c3)">AI &amp; RAG Engineer<small>1 · prompts, agents</small></div>
+      <div style="--k:var(--c4)">QA &amp; Monitoring<small>1 · tests, alerts</small></div>
+      <div style="--k:var(--c2)">Domain experts<small>freight, finance (part-time)</small></div>
+    </div>
+    <div class="small muted">+ 2 SDRs in the sales budget</div>
+  </div></div>
+  <div class="tbl"><table><thead><tr><th>Role</th><th>People</th><th>Main job</th><th>Monthly salary each (PKR, approx.)</th></tr></thead><tbody>
+    <tr><td>Automation lead / architect</td><td class="num">1</td><td>Designs solutions, reviews builds, client calls</td><td class="num">400,000</td></tr>
+    <tr><td>Business analyst / account manager</td><td class="num">1</td><td>Audits, process maps, US/UK hours</td><td class="num">250,000</td></tr>
+    <tr><td>n8n / Make builders</td><td class="num">3</td><td>Build and test workflows</td><td class="num">200,000</td></tr>
+    <tr><td>AI and RAG engineer</td><td class="num">1</td><td>Prompts, assistants, vector search, evaluation</td><td class="num">300,000</td></tr>
+    <tr><td>QA and monitoring</td><td class="num">1</td><td>Testing, alerts, fixes</td><td class="num">120,000</td></tr>
+    <tr><td>SDRs</td><td class="num">2</td><td>Job-ad research, teardown videos, booking calls</td><td class="num">100,000</td></tr>
+  </tbody></table></div>
+  <h3>Working hours converter</h3>
+  <div class="panel"><div class="hours">
+    <div class="seg" id="tzSeg"></div>
+    <div><div class="eyebrow">Client office 9 am – 5 pm</div><div class="clock" id="tzOut"></div><div class="small muted" id="tzNote"></div></div>
+  </div></div>
+  <h3>Go-live checklist (every build)</h3>
+  <ul class="qlist" id="qList"></ul>
+</section>
+
+<!-- 09 TOOLKIT -->
+<section class="chapter" id="toolkit" style="--k:var(--c5)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 09 · Tools to learn and methods</span>
+    <h2>Which tools to learn, and how to do the work</h2>
+    <p class="lead">Pick your role, learn Level 1 first, and tick each tool when you pass its skill test. Then use the tool directory and the 10 step-by-step methods with templates.</p></div>
+  <h3 id="learn">Tools to learn: the learning path</h3>
+  <div class="filters"><div class="seg" id="roleSeg" aria-label="Choose a role"></div></div>
+  <div class="lp-prog"><span class="mono" id="lpText"></span><div class="rm-bar"><i id="lpBar"></i></div><span class="small muted" id="lpHours"></span></div>
+  <div class="levels" id="levels"></div>
+  <h3>Tool directory</h3>
+  <div class="filters">
+    <input type="search" id="toolSearch" placeholder="Search tools, e.g. n8n, OCR, QuickBooks" aria-label="Search tools">
+    <div class="seg" id="toolSeg"><button data-f="all" aria-pressed="true">All</button><button data-f="free" aria-pressed="false">Free</button><button data-f="paid" aria-pressed="false">Paid</button></div>
+  </div>
+  <div class="tbl"><table><thead><tr><th>Tool</th><th>Job</th><th>Cost</th><th>What we use it for</th></tr></thead><tbody id="toolTbl"></tbody></table></div>
+  <p class="small muted" id="toolCount"></p>
+  <div class="callout" style="--k:var(--c5)"><b>Beginner starter kit (under $50 a month)</b>Self-hosted n8n on a small VPS (≈ $10–$20/mo) or the n8n cloud trial, Zapier and Make free plans, one AI API key with a $10–$20 budget, Google Sheets, Supabase free tier and Loom free. Enough to build every method below.</div>
+  <h3>The 10 core methods</h3>
+  <div id="methods"></div>
+</section>
+
+<!-- 10 MONEY -->
+<section class="chapter" id="money" style="--k:var(--c6)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 10 · The money</span>
+    <h2>Prices, costs and revenue</h2>
+    <p class="lead">The market charges $500–$15,000 for builds and $300–$5,000 a month for retainers (Vantaige 2026). We price below typical US agencies because delivery is in Lahore. Switch the market to see local prices.</p></div>
+  <div class="seg" id="curSeg" style="margin-bottom:14px"><button data-c="us" aria-pressed="true">US / UK (USD)</button><button data-c="eu" aria-pressed="false">Europe (EUR)</button><button data-c="wl" aria-pressed="false">White-label (30% off)</button></div>
+  <div class="prices five" id="prices"></div>
+  <p class="small muted" style="margin-top:10px">Builds: 50% deposit, 50% at go-live. AI and tool costs at cost + 15%. Per-result options: $75–$150 per booked meeting, $0.50–$3 per document.</p>
+  <h3>Margin calculator</h3>
+  <div class="calc" style="--k:var(--c6)">
+    <div class="panel" id="mixIn"></div>
+    <div class="panel"><div class="eyebrow">Per month</div><div class="kv" id="mixOut" style="margin-top:10px"></div>
+      <div class="marginbar" id="mixBar"></div><div class="small muted">Green = gross profit · grey = team · blue = tools. One 7-person pod (≈ $7,450 incl. overhead) handles about 10 care plans and 2 builds a month.</div></div>
+  </div>
+  <h3>One client, in detail</h3>
+  <div class="tbl"><table><tbody>
+    <tr><td>Typical first build</td><td class="num">$6,000</td></tr><tr><td>Delivery cost of that build (≈ 120 team hours)</td><td class="num">$2,000</td></tr>
+    <tr><td>Care plan</td><td class="num">$1,200 / month</td></tr><tr><td>Care plan delivery cost</td><td class="num">$350 / month</td></tr>
+    <tr><td>Cost to win the client</td><td class="num">$800–$1,500</td></tr><tr><td>Expected care-plan lifetime</td><td class="num">≈ 18 months</td></tr>
+    <tr><td>Lifetime gross profit (build + care)</td><td class="num">≈ $19,000</td></tr>
+  </tbody></table></div>
+  <h3>Startup cost</h3>
+  <div class="tbl"><table><tbody>
+    <tr><td>Legal: MSA, DPA, liability caps, IP clauses</td><td class="num">$3,000</td></tr><tr><td>E&amp;O and cyber insurance, first year</td><td class="num">$3,000</td></tr>
+    <tr><td>Demo builds and internal automations</td><td class="num">$2,000</td></tr><tr><td>Website, case studies, demo videos</td><td class="num">$1,500</td></tr>
+    <tr><td>Tools and API credits</td><td class="num">$1,500</td></tr><tr><td>Training</td><td class="num">$1,000</td></tr>
+    <tr><td>Running costs not covered, months 1–3</td><td class="num">$8,000</td></tr><tr><td>Safety buffer</td><td class="num">$5,000</td></tr>
+    <tr><td><b>Total</b></td><td class="num"><b>≈ $25,000</b></td></tr>
+  </tbody></table></div>
+  <h3>Three scenarios at month 12</h3>
+  <div class="tbl"><table><thead><tr><th></th><th>Slow</th><th>Base</th><th>Strong</th></tr></thead><tbody>
+    <tr><td>Care-plan clients</td><td class="num">8</td><td class="num">18</td><td class="num">30</td></tr>
+    <tr><td>New builds per month</td><td class="num">1</td><td class="num">2.5</td><td class="num">4</td></tr>
+    <tr><td>Monthly revenue</td><td class="num">≈ $15k</td><td class="num">≈ $40k</td><td class="num">≈ $70k</td></tr>
+    <tr><td>Gross margin</td><td class="num">≈ 50%</td><td class="num">≈ 60%</td><td class="num">≈ 63%</td></tr>
+    <tr><td>What causes it</td><td>Few referrals; long sales cycles</td><td>Freight + finance templates sell; 3 referral partners</td><td>CPA white-label partner brings 10+ clients</td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- 11 FUNNELS -->
+<section class="chapter" id="funnels" style="--k:var(--c7)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 11 · Where clients come from</span>
+    <h2>Client sources and funnels for the US and UK</h2>
+    <p class="lead">Pick a market and a channel, then move the sliders. The funnel, cost per client, audit and build income, and the 12-month care-plan revenue update live.</p></div>
+  <div class="ftop">
+    <div class="seg" id="mkSeg" aria-label="Market"><button data-mk="us" aria-pressed="true">United States</button><button data-mk="uk" aria-pressed="false">United Kingdom</button></div>
+    <div class="seg" id="chSeg" aria-label="Channel"><button data-ch="direct" aria-pressed="true">Job-ad signal outreach</button><button data-ch="agency" aria-pressed="false">Referral partners</button><button data-ch="content" aria-pressed="false">Warm network</button></div>
+  </div>
+  <div class="fgrid">
+    <div class="panel">
+      <div class="eyebrow" id="fTitle"></div>
+      <svg class="funnelsvg" id="funnelSvg" role="img" aria-label="Sales funnel"></svg>
+      <div class="results">
+        <div><b class="mono" id="rNew"></b><span>new care-plan clients / month</span></div>
+        <div><b class="mono" id="rCac"></b><span>cost per client</span></div>
+        <div><b class="mono" id="rAud"></b><span>audit + build income / month</span></div>
+        <div><b class="mono" id="rMrr"></b><span>care-plan revenue at month 12</span></div>
+      </div>
+      <div id="projSvg" style="margin-top:14px"></div>
+      <p class="small muted" style="margin-top:6px">Model: the same number of new care-plan clients each month, 4% leaving each month. Audit and build fees come on top. An estimate, not a forecast.</p>
+    </div>
+    <div class="panel" id="fInputs" style="--k:var(--c7)"></div>
+  </div>
+  <div class="mfacts" id="mFacts"></div>
+  <h3>All client sources</h3>
+  <div class="tbl"><table><thead><tr><th>Channel</th><th>How it works</th><th>Share of first 30 clients (est.)</th></tr></thead><tbody>
+    <tr><td><b>Warm network</b></td><td>Brokers, carriers, shippers, content and GEO clients; offer an audit</td><td class="num">≈ 34%</td></tr>
+    <tr><td><b>Job-ad signals</b></td><td>Firms hiring "data entry", "AP clerk", "dispatcher"; send a 2-minute teardown video</td><td class="num">≈ 22%</td></tr>
+    <tr><td><b>Referral partners</b></td><td>CPA firms, IT providers (MSPs), agencies, fractional CFOs; 10–15% referral or white-label</td><td class="num">≈ 16%</td></tr>
+    <tr><td><b>LinkedIn content</b></td><td>Weekly before/after demo videos with hours saved</td><td class="num">≈ 12%</td></tr>
+    <tr><td><b>Directories and marketplaces</b></td><td>n8n experts, Make and Zapier partner directories (once eligible); Upwork, Contra</td><td class="num">≈ 9%</td></tr>
+    <tr><td><b>Associations and events</b></td><td>TIA (freight), state CPA societies, AICPA ENGAGE, IIABA (insurance agents)</td><td class="num">≈ 7%</td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- 12 SCRIPTS -->
+<section class="chapter" id="scripts" style="--k:var(--c7)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 12 · Sales scripts</span>
+    <h2>Ready-to-use messages</h2>
+    <p class="lead">Copy, fill the brackets, send. Every email shows our company name, a postal address and an opt-out.</p></div>
+  <div class="scripts" id="scriptBox"></div>
+</section>
+
+<!-- 13 RULES -->
+<section class="chapter" id="rules" style="--k:var(--c8)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 13 · Rules, security and risks</span>
+    <h2>No licence needed, but data and AI rules protect us</h2>
+    <p class="lead">General information, not legal advice. Budget a one-time lawyer review.</p></div>
+  <div class="tbl"><table><thead><tr><th>Rule</th><th>What it says</th><th>What we do</th></tr></thead><tbody>
+    <tr><td><b>GDPR / UK GDPR</b></td><td>Protect personal data of people in Europe and the UK; Pakistan has no EU adequacy decision</td><td>DPA + Standard Contractual Clauses (UK: IDTA/Addendum); least access</td></tr>
+    <tr><td><b>GLBA (US financial data)</b></td><td>Financial firms must protect customer data, including via service providers</td><td>Security programme, access controls, logs</td></tr>
+    <tr><td><b>IRS Section 7216</b></td><td>Tax preparers need consent to use or disclose tax return data</td><td>Work under the CPA firm's consent process</td></tr>
+    <tr><td><b>HIPAA</b></td><td>Health data needs a Business Associate Agreement</td><td>Sign a BAA or don't touch PHI</td></tr>
+    <tr><td><b>EU AI Act, Art. 50</b></td><td>People must be told when they interact with AI (from 2 Aug 2026)</td><td>Assistants and voice agents disclose they are AI</td></tr>
+    <tr><td><b>TCPA</b></td><td>Consent rules for automated calls and texts</td><td>Inbound first; consent records for outbound</td></tr>
+    <tr><td><b>n8n licence</b></td><td>Building and running workflows for clients is allowed; hosting n8n as a service where clients build their own workflows is not</td><td>Run on the client's own n8n, or on ours without client access</td></tr>
+  </tbody></table></div>
+  <div class="grid2">
+    <div class="panel" style="border-top:4px solid var(--good)"><h4 style="color:var(--good)">Security standard</h4><ul class="small" style="padding-left:18px;margin:8px 0 0"><li>MFA everywhere; company laptops only</li><li>Credentials in n8n credentials or a vault, never in code or chat</li><li>Read-only until write is needed; separate test and live</li><li>Client owns all accounts and AI keys</li><li>Logs for every run; minimal personal data in prompts</li><li>Business/API tiers of AI providers (check data-use terms)</li></ul></div>
+    <div class="panel" style="border-top:4px solid var(--bad)"><h4 style="color:var(--bad)">Main risks</h4><ul class="small" style="padding-left:18px;margin:8px 0 0"><li><b>AI mistakes:</b> real-sample tests, thresholds, approvals, shadow mode</li><li><b>System changes:</b> error alerts and care plan</li><li><b>Liability:</b> liability cap, client approves outputs, E&amp;O</li><li><b>Data breach:</b> security standard, cyber insurance</li><li><b>Commoditisation:</b> industry-specific multi-system builds</li><li><b>Scope creep:</b> fixed scope and change requests</li></ul></div>
+  </div>
+</section>
+
+<!-- 14 PLAN -->
+<section class="chapter" id="plan" style="--k:var(--c9)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 14 · Launch plan and decision</span>
+    <h2>90 days to the go / no-go gate</h2></div>
+  <div class="phases">
+    <div class="phase" style="--k:var(--c1)"><span class="eyebrow">Days 1–30</span><h4>Build the demos</h4><ul><li>Train 3 builders on n8n + AI</li><li>Automate 3 of our own processes</li><li>Build freight and finance demos</li><li>Legal templates and insurance</li></ul></div>
+    <div class="phase" style="--k:var(--c3)"><span class="eyebrow">Days 31–60</span><h4>First clients</h4><ul><li>Audit offer to our network</li><li>Job-ad signal outreach starts</li><li>Approach 10 CPA firms and MSPs</li><li>Target: 4 audits, 2 builds</li></ul></div>
+    <div class="phase" style="--k:var(--c6)"><span class="eyebrow">Days 61–90</span><h4>Prove and repeat</h4><ul><li>Publish 2 case studies (hours saved)</li><li>Target: 4 care plans live</li><li>Turn the best build into a template</li><li>Run the day-90 review</li></ul></div>
+  </div>
+  <div class="gate"><b>Day-90 gate.</b> Scale if we have 4+ paying clients, 2+ live builds with measured hours saved, and a 50%+ audit-to-build rate. Otherwise narrow to freight automation only.</div>
+  <h3>Venture score</h3>
+  <div class="panel score" id="scoreBox"></div>
+  <h3>Numbers to watch every month</h3>
+  <div class="tbl"><table><thead><tr><th>Area</th><th>KPI</th><th>Target</th></tr></thead><tbody>
+    <tr><td>Sales</td><td>Teardowns / replies / calls / audits</td><td class="num">120 / 30 / 12 / 5</td></tr>
+    <tr><td>Sales</td><td>Audit → build</td><td class="num">60%</td></tr>
+    <tr><td>Delivery</td><td>Accuracy before go-live</td><td class="num">≥ 95–98%</td></tr>
+    <tr><td>Money</td><td>Monthly revenue</td><td class="num">$10k by M4 · $50k by M15</td></tr>
+    <tr><td>Money</td><td>Gross margin</td><td class="num">60%+</td></tr>
+    <tr><td>Clients</td><td>Care plan churn</td><td class="num">&lt; 4% / month</td></tr>
+    <tr><td>Product</td><td>Builds from templates</td><td class="num">50%+ by M9</td></tr>
+  </tbody></table></div>
+  <div class="final"><h3>Final recommendation: GO</h3><p style="margin:0">The gap is large (repetitive work everywhere, staff shortages, few builders for small and mid-size firms), we have the freight domain and our own processes as a test lab, and Lahore delivery gives us a strong price advantage.</p></div>
+</section>
+
+<!-- 15 GLOSSARY -->
+<section class="chapter" id="glossary" style="--k:var(--ink)">
+  <div class="chhead"><span class="tag"><i></i>Chapter 15 · Glossary and sources</span>
+    <h2>Every new word, in simple English</h2></div>
+  <div class="filters"><input type="search" id="glossSearch" placeholder="Search a word, e.g. RAG" aria-label="Search glossary"></div>
+  <div class="gloss" id="glossBox"></div>
+  <h3>Sources</h3>
+  <p class="small muted">Read in October 2026. Prices and figures change often; check each source before deciding.</p>
+  <ol class="sources" id="srcList"></ol>
+</section>
+</main>
+</div>
+<footer>AI Agents &amp; Automation Venture Playbook · built from the AI Agents &amp; Automation Venture guide · October 2026 · Confidential, for internal planning</footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function toast(t){const el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("show"),1600)}
+function copyText(text,btn){
+  const done=()=>{toast("Copied");if(btn){const o=btn.textContent;btn.textContent="Copied";setTimeout(()=>btn.textContent=o,1200)}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,()=>fallback())}else fallback();
+  function fallback(){const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(e){toast("Select the text and copy it")}ta.remove()}
+}
+
+/* ---------- theme ---------- */
+const themes=["auto","light","dark"];let th=store.get("agents-theme","auto");
+function applyTheme(){if(th==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",th);$("themeBtn").textContent="Theme: "+th}
+$("themeBtn").onclick=()=>{th=themes[(themes.indexOf(th)+1)%3];store.set("agents-theme",th);applyTheme()};applyTheme();
+
+/* ---------- chapters rail ---------- */
+const CH=[["roadmap","01","Start here: roadmap","var(--ink)"],["basics","02","The basics","var(--c1)"],["why","03","Why companies need it","var(--c2)"],["gaps","04","Where to find the gap","var(--c3)"],["industries","05","Industries to target","var(--c4)"],["finance","06","Finance agents","var(--c2)"],["services","07","Services","var(--c3)"],["work","08","How work gets done","var(--c4)"],["toolkit","09","Tools to learn & methods","var(--c5)"],["money","10","The money","var(--c6)"],["funnels","11","Where clients come from","var(--c7)"],["scripts","12","Sales scripts","var(--c7)"],["rules","13","Rules & risks","var(--c8)"],["plan","14","Launch plan","var(--c9)"],["glossary","15","Glossary & sources","var(--ink)"]];
+$("railList").innerHTML=CH.map(c=>`<li><a href="#${c[0]}" data-id="${c[0]}" style="--k:${c[3]}"><span class="n">${c[1]}</span><span>${c[2]}</span></a></li>`).join("");
+const links=[...document.querySelectorAll(".rail a")];
+function onScroll(){
+  const y=window.scrollY+140;let cur=CH[0];
+  CH.forEach(c=>{const el=$(c[0]);if(el&&el.offsetTop<=y)cur=c});
+  links.forEach(a=>a.classList.toggle("on",a.dataset.id===cur[0]));
+  $("topSec").textContent=cur[1]+" · "+cur[2];
+  const h=document.documentElement.scrollHeight-innerHeight;$("readbar").style.width=(h>0?scrollY/h*100:0)+"%";
+  const act=links.find(a=>a.classList.contains("on"));
+  if(act&&innerWidth<=1060){const r=act.parentElement.parentElement;const ar=act.getBoundingClientRect(),rr=r.getBoundingClientRect();if(ar.left<rr.left||ar.right>rr.right)r.scrollLeft+=ar.left-rr.left-20}
+}
+addEventListener("scroll",onScroll,{passive:true});addEventListener("resize",onScroll);
+
+/* ---------- hero demo ---------- */
+const DEMO=[
+ {q:"Enter 40 supplier invoices into QuickBooks",e:"Accounts payable · daily",
+  before:[["Open each email and download the PDF","2 min"],["Type vendor, date, lines and total","3 min"],["Check against the purchase order","1 min"],["File the PDF in the right folder","0.5 min"]],bt:"≈ 4.3 hours a day for 40 invoices",
+  after:[["Agent reads every new invoice email","auto"],["AI extracts fields; code checks totals","auto"],["3-way match with PO and receipt","auto"],["2 exceptions sent to a person in Slack","5 min"]],at:"≈ 15 minutes a day of human review"},
+ {q:"Create loads in the TMS from rate confirmations",e:"Freight brokerage · all day",
+  before:[["Open rate con PDF from the broker email","1 min"],["Type pickup, delivery, dates, rate","4 min"],["Attach the PDF to the load","1 min"],["Email the carrier the load details","2 min"]],bt:"≈ 8 minutes per load; 60 loads = 8 hours",
+  after:[["Agent watches the rate-con inbox","auto"],["AI reads the PDF into fields","auto"],["Load created in the TMS via API","auto"],["Dispatcher approves loads flagged as unusual","1 min"]],at:"≈ 1 minute per load of human review"},
+ {q:"Reply to and qualify new website leads",e:"Sales · evenings and weekends",
+  before:[["Lead fills the form at 9 pm","-"],["Sales rep sees it next morning","12 h"],["Rep researches the company","10 min"],["Rep emails to book a call","5 min"]],bt:"First reply after ≈ 12 hours",
+  after:[["Agent enriches the lead (size, industry)","auto"],["AI writes a personal reply in 2 minutes","auto"],["Offers calendar slots; books the meeting","auto"],["CRM updated; rep gets a summary","-"]],at:"First reply in ≈ 2 minutes, 24/7"}
+];
+let dq=0,dv="before";
+$("demoQ").innerHTML=DEMO.map((d,i)=>`<option value="${i}">${esc(d.q)}</option>`).join("");
+function drawDemo(){
+  const d=DEMO[dq],a=dv==="before"?d.before:d.after,yes=dv==="after";
+  $("demoEngine").textContent=d.e;
+  $("demoAns").innerHTML=`<div class="dsteps">${a.map((s,i)=>`<div><i>${i+1}</i><span class="${!yes&&i===1?"":""}">${esc(s[0])}</span><span class="t ${yes&&s[1]!=="auto"&&s[1]!=="-"?"hu":""}">${esc(s[1])}</span></div>`).join("")}</div>`;
+  $("demoSrc").innerHTML=yes?`<span>trigger</span><span>AI step</span><span>human approval</span><span>logged</span>`:`<span>copy</span><span>paste</span><span>check</span><span>repeat</span>`;
+  $("demoVerdict").className="verdict "+(yes?"yes":"no");$("demoVerdict").textContent=yes?d.at:d.bt;
+  document.querySelectorAll("#demoSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===dv));
+}
+$("demoQ").onchange=e=>{dq=+e.target.value;drawDemo()};
+document.querySelectorAll("#demoSeg button").forEach(b=>b.onclick=()=>{dv=b.dataset.v;drawDemo()});
+drawDemo();
+
+/* ---------- roadmap ---------- */
+const STAGES={learn:["Stage A · Learn","weeks 1 to 4","var(--c1)"],practise:["Stage B · Practise on yourself","weeks 5 to 10","var(--c3)"],launch:["Stage C · Launch the business","week 11 onwards","var(--c6)"]};
+const STOPS=[
+ ["learn","Understand agents","2 days","Read chapter 02: the four levels, the agent loop, RAG and guardrails.",["Read the four levels","Read how agents handle repeated tasks","Read the glossary"],"This playbook","You can explain automation vs agent in 2 minutes","basics"],
+ ["learn","Build a first Zap","1 day","Feel how automation works.",["Make a free Zapier or Make account","Form → Google Sheet → Slack message","Run it 10 times"],"Zapier / Make free plan","It runs by itself 10 times","basics"],
+ ["learn","Learn n8n + AI","2–3 weeks","Our main tool.",["Self-host n8n or start the cloud trial","Build email → AI extract → sheet with an error branch","Pass Level 1–2 of the learning path"],"n8n docs and courses","Level 1–2 skill tests passed","learn"],
+ ["learn","Learn to find gaps","2 days","Chapter 04: signals and the Gap Score.",["Read the 10 signals","Use the Gap Score calculator on 10 tasks","Find 5 job ads with automatable tasks"],"Gap Score calculator","10 tasks scored","gaps"],
+ ["practise","Audit our own work","1 week","Method 1 inside our own company.",["Interview 5 people in dispatch and content","List 30 tasks with hours","Score them; pick the top 10"],"Sheets, Loom","Our top 10 gaps listed","toolkit"],
+ ["practise","Automate 3 tasks","3–4 weeks","Methods 3–8 on our own processes.",["Design on paper first","Build with error handling and approvals","Shadow mode, then live"],"n8n, AI API, Slack","3 automations live","toolkit"],
+ ["practise","Measure hours saved","30 days","Proof for sales.",["Record time before","Track exceptions and errors","Calculate hours and dollars saved"],"Sheets","A real hours-saved number","work"],
+ ["practise","Build 2 demos","2 weeks","Freight and finance demos for prospects.",["Rate con → TMS demo","Invoice → QuickBooks demo","Record 3-minute videos"],"n8n, sandbox accounts","2 demo videos","finance"],
+ ["launch","Set up the business","1–2 weeks","Prices, contracts and security.",["Fix prices (chapter 10)","MSA, DPA, liability caps; insurance","Separate bank, Stripe, domain; security standard"],"US LLC, Stripe","Ready to sign a client","money"],
+ ["launch","Win 4 audits","3–6 weeks","Network, job-ad signals, referral partners.",["Offer audits to our network","Send 120 teardown videos a month","Approach 10 CPA firms and MSPs"],"Apollo, LinkedIn, Loom","4 paid audits","funnels"],
+ ["launch","Build and run","ongoing","The 6-step delivery process.",["Discover, map, design","Build and test on real samples","Launch with a care plan"],"Full toolkit","Clients renew month 3","work"],
+ ["launch","Templates and scale","ongoing","Make the 5th build 3x faster.",["Turn builds into templates","Add a pod per 10 care plans","Run the day-90 gate"],"n8n templates","$50k a month","plan"]
+];
+let rmDone=new Set(store.get("agents-roadmap",[])),rmSel=0;
+function drawRoad(){
+  $("road").innerHTML=Object.entries(STAGES).map(([k,s])=>`<div style="--k:${s[2]}"><div class="stage-l"><b style="color:${s[2]}">${s[0]}</b><span class="small muted">${s[1]}</span></div><div class="stops">`+
+   STOPS.map((st,i)=>st[0]!==k?"":`<button class="stop${rmDone.has(i)?" done":""}" data-i="${i}" aria-pressed="${i===rmSel}"><span class="dot">${rmDone.has(i)?"✓":i+1}</span><span class="t">${st[1]}</span><span class="m">${st[2]}</span></button>`).join("")+`</div></div>`).join("");
+  $("road").querySelectorAll(".stop").forEach(b=>b.onclick=()=>{rmSel=+b.dataset.i;drawRoad();drawRm()});
+  $("rmText").textContent=rmDone.size+" of 12 done";$("rmBar").style.width=rmDone.size/12*100+"%";
+}
+function drawRm(){
+  const s=STOPS[rmSel],g=STAGES[s[0]];const el=$("rmDetail");el.style.setProperty("--k",g[2]);
+  el.innerHTML=`<div class="rm-top"><div><div class="eyebrow">Stop ${rmSel+1} of 12 · ${g[0]}</div><h3 style="margin:6px 0 4px;font-size:1.4rem">${s[1]}</h3><p class="muted" style="margin:0">${s[3]}</p></div>
+   <label class="chk" for="rmChk"><input type="checkbox" id="rmChk" ${rmDone.has(rmSel)?"checked":""}> Mark as done</label></div>
+   <dl class="rm-dl"><div><dt>What you do</dt><dd><ol>${s[4].map(x=>`<li>${esc(x)}</li>`).join("")}</ol></dd></div>
+   <div><dt>Tools</dt><dd>${esc(s[5])}</dd><dt style="margin-top:12px">Time</dt><dd class="mono">${s[2]}</dd></div>
+   <div><dt>Done when</dt><dd>${esc(s[6])}</dd><dt style="margin-top:12px">Read more</dt><dd><a href="#${s[7]}">Go to chapter →</a></dd></div></dl>
+   <div class="navbtns"><button id="rmPrev" ${rmSel===0?"disabled":""}>← Previous</button><button id="rmNext" ${rmSel===11?"disabled":""}>Next stop →</button></div>`;
+  $("rmChk").onchange=e=>{e.target.checked?rmDone.add(rmSel):rmDone.delete(rmSel);store.set("agents-roadmap",[...rmDone]);drawRoad()};
+  $("rmPrev").onclick=()=>{if(rmSel>0){rmSel--;drawRoad();drawRm()}};
+  $("rmNext").onclick=()=>{if(rmSel<11){rmSel++;drawRoad();drawRm()}};
+}
+$("rmReset").onclick=()=>{rmDone.clear();store.set("agents-roadmap",[]);drawRoad();drawRm();toast("Progress cleared")};
+drawRoad();drawRm();
+
+/* ---------- market chart ---------- */
+/* ---- Gap Score calculator ---- */
+const GPRE=[["Invoice data entry",30,5,5,5,4,30],["Rate con → TMS entry",25,5,5,5,4,28],["Lead first reply + booking",15,4,4,5,4,35],["Weekly KPI report",6,5,5,4,5,40],["Variance commentary",8,3,3,5,3,55],["Contract negotiation",10,1,1,4,1,80]];
+const gv={h:30,rep:5,rul:5,dig:5,risk:4,rate:30};
+function volScore(h){return h<=1?1:h<=5?2:h<=10?3:h<=20?4:5}
+function drawGapIn(){
+  $("gapIn").innerHTML=`<div class="eyebrow" style="margin-bottom:8px">Load an example</div><select id="gapPre" style="width:100%;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--fg);margin-bottom:14px">${GPRE.map((g,i)=>`<option value="${i}">${esc(g[0])}</option>`).join("")}</select>`+
+   [["h","Hours per week spent on the task",1,40,1],["rep","Repeatable: same steps each time (1–5)",1,5,1],["rul","Rules: decisions written down (1–5)",1,5,1],["dig","Digital: email, PDF, apps with APIs (1–5)",1,5,1],["risk","Low risk if it goes wrong once (1–5)",1,5,1],["rate","Loaded hourly cost of the person (USD)",15,80,1]]
+   .map(s=>`<div class="slider"><label for="g-${s[0]}"><span>${s[1]}</span><output id="go-${s[0]}">${s[0]==="rate"?"$"+gv[s[0]]:gv[s[0]]}</output></label><input type="range" id="g-${s[0]}" min="${s[2]}" max="${s[3]}" step="${s[4]}" value="${gv[s[0]]}" data-k="${s[0]}"></div>`).join("");
+  $("gapIn").querySelectorAll("input").forEach(el=>el.oninput=()=>{gv[el.dataset.k]=+el.value;$("go-"+el.dataset.k).textContent=el.dataset.k==="rate"?"$"+el.value:el.value;drawGapOut()});
+  $("gapPre").onchange=e=>{const g=GPRE[+e.target.value];Object.assign(gv,{h:g[1],rep:g[2],rul:g[3],dig:g[4],risk:g[5],rate:g[6]});drawGapIn();$("gapPre").value=e.target.value;drawGapOut()};
+}
+function drawGapOut(){
+  const vs=volScore(gv.h),sc=vs+gv.rep+gv.rul+gv.dig+gv.risk;
+  const [lab,col,share]=sc>=20?["Automate now","var(--good)",.8]:sc>=14?["Agent + human approval","var(--c4)",.6]:sc>=9?["AI assist (drafts, templates)","var(--c1)",.3]:["Leave manual for now","var(--muted)",.1];
+  const yc=gv.h*52*gv.rate,ys=yc*share,ms=ys/12;
+  const build=Math.min(15000,Math.max(1500,Math.round(ys*0.2/500)*500));
+  const care=gv.h<10?400:gv.h<=30?1200:2500;
+  const net=ms-care,pay=net>0?build/net:null,f=x=>"$"+Math.round(x).toLocaleString("en-US");
+  $("gapOut").innerHTML=`<div class="eyebrow">Gap Score</div><div class="gscore"><b>${sc}<span style="font-size:1.2rem;color:var(--muted)">/25</span></b><span class="verdictpill" style="background:${col}">${lab}</span></div>
+   <div class="kv"><span>Volume score (from ${gv.h} h/week)</span><span>${vs}</span><span>Yearly cost of this task</span><span>${f(yc)}</span><span>Share we can likely automate</span><span>${Math.round(share*100)}%</span><span>Yearly saving for the client</span><span>${f(ys)}</span><span>Suggested build price</span><span>${f(build)}</span><span>Suggested care plan</span><span>${f(care)}/mo</span><span class="tot">Client payback</span><span class="tot">${pay?pay.toFixed(1)+" months":"not worth it yet"}</span></div>
+   <p class="small muted" style="margin:0">20–25 automate now · 14–19 agent with approvals · 9–13 AI assist · under 9 leave manual. Estimates for planning; confirm in the audit.</p>`;
+}
+drawGapIn();drawGapOut();
+
+/* ---- industry explorer ---- */
+const IND=[
+ ["Freight brokerage & logistics",5,"easy",["Rate con → TMS load creation","Load board posting","Check-call summaries and customer updates","Carrier onboarding checks","POD + invoice matching"],"Owner, operations manager","Our own network; TIA members; freight LinkedIn and Facebook groups; DAT/Truckstop users","$5k–$12k build + $1k–$2.5k/mo, or per load","Start here: we run this work already; our dispatch is the case study."],
+ ["Accounting / CPA firms",5,"strict",["Client document collection","Bank reconciliations","AP capture for clients","Month-end reports","Engagement letters and reminders"],"Firm partner, operations manager","State CPA societies, AICPA ENGAGE, accounting LinkedIn, QuickBooks/Xero communities","$4k–$10k + $1k–$2k/mo","Section 7216 (tax data), GLBA, security reviews; white-label is common."],
+ ["SMB finance teams",5,"strict",["AP invoice agent","AR reminders","Reconciliation","13-week cash forecast","Management pack"],"CFO, controller","LinkedIn (CFO/controller titles), fractional CFO partners, finance job ads","$5k–$15k + $1k–$2.5k/mo","No autonomous payments; audit trail; SOX if public."],
+ ["Distribution / wholesale",4,"easy",["Purchase orders from email/PDF → ERP","Quote requests","Stock alerts","Order confirmations"],"COO, operations manager","Industry associations, ERP partner networks, job ads for order-entry clerks","$6k–$15k + $1k–$2k/mo","Legacy ERPs may lack APIs; plan extra time."],
+ ["Insurance agencies",4,"strict",["Certificate (COI) requests","Renewal preparation","Policy checking","Quote intake"],"Agency principal, operations","IIABA (Big I) and state agent associations, agency-management user groups","$4k–$10k + $1k–$2k/mo","Staff and agents must not sell or advise on insurance."],
+ ["E-commerce / DTC",4,"easy",["Order-status replies","Returns","Review requests","Inventory alerts","Product feeds"],"Founder, operations lead","Shopify partner community, e-commerce founder groups, our AI Ads clients","$3k–$8k + $0.8k–$2k/mo","Peak seasons need extra monitoring."],
+ ["Real estate & property management",4,"easy",["Lead follow-up","Maintenance tickets","Lease data extraction","Tenant messages"],"Broker, property manager","Property management associations, AppFolio/Yardi user groups","$3k–$8k + $0.8k–$1.5k/mo","Fair housing rules in tenant communication."],
+ ["Home services",3,"easy",["Missed-call text-back","Booking","Quotes","Review requests"],"Owner, office manager","Local business groups, home-services software communities","$2k–$5k + $0.5k–$1k/mo","Small budgets; productised packages work best."],
+ ["Staffing & recruiting",4,"easy",["Resume screening","Candidate outreach","Interview scheduling","CDL driver recruiting"],"Agency owner, recruiting lead","Staffing associations, ATS user communities, freight network for CDL","$4k–$10k + $1k–$2k/mo","Employment and anti-discrimination rules in screening."],
+ ["B2B SaaS & agencies",4,"easy",["Lead routing","CRM hygiene","Client onboarding","Reporting"],"RevOps, COO","Our GEO and AI Ads clients, SaaS communities, LinkedIn","$4k–$12k + $1k–$2.5k/mo","Often have in-house tools; sell speed and maintenance."],
+ ["Law firms",3,"strict",["Client intake","First-draft documents","Deadline tracking","Client updates"],"Managing partner","Legal tech communities, bar association events","$4k–$10k + $1k–$2k/mo","Confidentiality; never give legal advice; attorney supervision."],
+ ["Healthcare clinics",3,"strict",["Appointment reminders","Intake forms","Insurance checks","Review requests"],"Practice manager","Practice-management communities, dental and clinic associations","$3k–$8k + $1k–$2k/mo","HIPAA: sign a BAA or don't touch patient data."]
+];
+let indF="all",indSel=0;
+function drawInd(){
+  const list=IND.map((x,i)=>[x,i]).filter(([x])=>indF==="all"||(indF==="top"&&x[1]===5)||(indF==="easy"&&x[2]==="easy"));
+  if(!list.some(([,i])=>i===indSel))indSel=list.length?list[0][1]:0;
+  $("indList").innerHTML=list.map(([x,i])=>`<button role="tab" aria-selected="${i===indSel}" data-i="${i}"><span class="n mono" style="color:var(--warn);min-width:58px;letter-spacing:1px">${"★".repeat(x[1])}</span>${esc(x[0])}</button>`).join("");
+  $("indList").querySelectorAll("button").forEach(b=>b.onclick=()=>{indSel=+b.dataset.i;drawInd()});
+  const x=IND[indSel];
+  $("indCard").innerHTML=`<header><div><div class="eyebrow">Industry</div><h3 style="margin:4px 0 0">${esc(x[0])}</h3></div><span class="stars" aria-label="fit ${x[1]} of 5">${"★".repeat(x[1])}${"☆".repeat(5-x[1])}</span></header><div style="overflow-x:auto"><table>
+   <tr><td style="color:var(--c2)">What we automate</td><td><ul style="margin:0;padding-left:18px">${x[3].map(t=>`<li>${esc(t)}</li>`).join("")}</ul></td></tr>
+   <tr><td style="color:var(--c1)">Who buys</td><td>${esc(x[4])}</td></tr>
+   <tr><td style="color:var(--c3)">Where to find them</td><td>${esc(x[5])}</td></tr>
+   <tr><td style="color:var(--c6)">Typical first deal</td><td>${esc(x[6])}</td></tr>
+   <tr><td style="color:var(--bad)">Watch out</td><td>${esc(x[7])}</td></tr>
+   <tr><td style="color:var(--muted)">Compliance load</td><td>${x[2]==="easy"?"Low":"High (data rules)"}</td></tr></table></div>`;
+  document.querySelectorAll("#indSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f===indF));
+}
+document.querySelectorAll("#indSeg button").forEach(b=>b.onclick=()=>{indF=b.dataset.f;drawInd()});
+drawInd();
+
+/* ---------- competitors ---------- */
+
+
+/* ---------- positioning ---------- */
+
+
+/* ---------- services ---------- */
+const SVC=[
+ ["Automation Audit","$500 / $1,500",{"What it is":"We interview staff, list every repetitive task, score each with the Gap Score, and estimate hours and dollars saved.","What we deliver":"Task inventory, top-10 opportunities, ROI estimate, build plan and a fixed quote.","Pricing":"$500 (small business) or $1,500 (mid-market); credited to the first build.","Time to result":"5–10 working days.","KPIs":"Audit-to-build conversion (target 60%)."}],
+ ["Quick-win workflows","$750–$1,500 each",{"What it is":"Single automations between apps, with or without one AI step.","Example":"New web form → CRM → Slack alert → welcome email.","Pricing":"$750–$1,500 each; 3 for $2,000.","Tools":"Zapier or Make for simple jobs; n8n for volume."}],
+ ["Workflow pack (one department)","$3,000–$6,000",{"What it is":"3–5 connected workflows that automate a department's routine.","Example":"Sales: lead capture, enrichment, routing, follow-ups, weekly report.","Pricing":"$3,000–$6,000 + care plan."}],
+ ["Document processing (AI intake)","$3,000–$8,000",{"What it is":"AI reads PDFs, emails and forms and enters data into systems.","Example":"Rate cons → TMS; invoices → QuickBooks; POs → ERP.","Pricing":"$3,000–$8,000 build + $0.50–$3 per document or a care plan.","Risks":"Messy documents; we test on 50+ real samples first."}],
+ ["Custom AI assistant","$3,000–$8,000 + $500–$1,500/mo",{"What it is":"A RAG assistant over the company's files and systems, in Slack, Teams or on the website.","Example":"SOP assistant for dispatchers; HR policy bot; customer FAQ assistant.","Pricing":"$3,000–$8,000 setup + $500–$1,500/mo.","Risks":"Out-of-date documents; each source gets an owner and review date."}],
+ ["Custom AI agent","$5,000–$12,000 + $750–$2,000/mo",{"What it is":"A goal-driven agent with tools and approval points.","Example":"Lead qualification + booking agent; check-call agent; ticket triage agent.","Pricing":"$5,000–$12,000 + $750–$2,000/mo.","Risks":"Needs evaluation on real cases and clear limits."}],
+ ["Finance automation pack","$6,000–$15,000",{"What it is":"AP agent, reconciliation assistant, AR reminders and a management dashboard.","Who buys":"Controllers, CFOs, CPA firms (white-label for their clients).","Pricing":"$6,000–$15,000 + $1,000–$2,500/mo.","Risks":"Never pays money alone; audit trail; data rules."}],
+ ["Freight operations pack","$5,000–$12,000",{"What it is":"Rate con intake, carrier onboarding, check-call summaries, POD/invoice matching.","Who buys":"Freight brokers, 3PLs, carriers with office staff.","Pricing":"$5,000–$12,000 + $1,000–$2,500/mo, or per load."}],
+ ["AI voice agent","$1,500–$3,000 + $300–$1,000/mo",{"What it is":"An AI that answers or makes routine calls: booking, reminders, status updates.","Pricing":"$1,500–$3,000 setup + $300–$1,000/mo + per-minute costs.","Risks":"TCPA consent for outbound; disclose that it is AI."}],
+ ["Care plan","$400 / $1,200 / $2,500 per month",{"What it is":"We watch every automation, fix breaks, update prompts and add small improvements.","Pricing":"Basic $400 (1–2 flows), Growth $1,200 (3–8 flows), Ops $2,500 (SLA, dashboard, monthly strategy).","KPIs":"Uptime, error rate, hours saved, churn."}],
+ ["White-label for agencies and CPA firms","30% below list",{"What it is":"We build and run automations for other firms' clients, under their brand.","Pricing":"30% below list.","Risks":"Partner concentration; cap any partner at 25% of revenue."}]
+];
+let sv=0;
+function drawSvc(){
+  $("svcList").innerHTML=SVC.map((s,i)=>`<button role="tab" aria-selected="${i===sv}" data-i="${i}"><span class="n mono">${String(i+1).padStart(2,"0")}</span>${s[0]}</button>`).join("");
+  $("svcList").querySelectorAll("button").forEach(b=>b.onclick=()=>{sv=+b.dataset.i;drawSvc()});
+  const s=SVC[sv],cols={"What it is":"var(--ink)","What we deliver":"var(--c2)","Pricing":"var(--c6)","Tools":"var(--muted)","Time to result":"var(--c4)","Example":"var(--c1)","Who buys":"var(--c3)","Risks":"var(--bad)","KPIs":"var(--c7)"};
+  $("svcCard").innerHTML=`<header><div><div class="eyebrow">Service ${sv+1} of ${SVC.length}</div><h3 style="margin:4px 0 0">${s[0]}</h3></div><span class="pill paid">${s[1]}</span></header><div style="overflow-x:auto"><table>${Object.entries(s[2]).map(([k,v])=>`<tr><td style="color:${cols[k]||"var(--muted)"}">${k}</td><td>${esc(v)}</td></tr>`).join("")}</table></div>`;
+}
+drawSvc();
+
+/* ---------- worked example ---------- */
+const EX=[["Audit","Interviewed 6 staff. Found 31 repetitive tasks; top 3: rate con entry (22 h/week), check-call updates (14 h/week), POD + invoice matching (9 h/week).",0,"Baseline: 45 hours/week on these 3 tasks"],
+ ["Weeks 1–3","Built rate con → TMS automation with AI extraction; 97% field accuracy on 80 past rate cons; 1 week in shadow mode.",18,"Rate con entry: 22 → 4 h/week"],
+ ["Weeks 4–6","Added a check-call agent: reads carrier messages and tracking, writes customer updates, sends unusual delays to a dispatcher.",29,"Check calls: 14 → 3 h/week"],
+ ["Month 2–3","POD + invoice matching flow; exceptions to Slack. Care plan Growth ($1,200/mo) signed; next: carrier onboarding.",36,"Total saved ≈ 36 h/week (≈ $56k/yr at $30/h)"]];
+let ex=0;
+function drawEx(){
+  $("exSeg").innerHTML=EX.map((e,i)=>`<button data-i="${i}" aria-pressed="${i===ex}">${e[0]}</button>`).join("");
+  $("exSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ex=+b.dataset.i;drawEx()});
+  const e=EX[ex];$("exText").innerHTML=`<p style="margin-top:12px"><b>${e[0]}:</b> ${esc(e[1])}</p><p class="small muted mono">${esc(e[3])}</p>`;
+  const v=e[2],mx=45,r=80,cx=100,cy=95,f=Math.min(v/mx,0.999),ang=Math.PI*(1-f),x=cx+r*Math.cos(ang),y=cy-r*Math.sin(ang);
+  const arc=v>0?`<path d="M20 95 A80 80 0 0 1 ${x.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="var(--c4)" stroke-width="16" stroke-linecap="round"/>`:"";
+  $("exGauge").innerHTML=`<svg viewBox="0 0 200 120" role="img" aria-label="${v} hours saved per week"><path d="M20 95 A80 80 0 0 1 180 95" fill="none" stroke="var(--sunk)" stroke-width="16" stroke-linecap="round"/>${arc}<text x="100" y="88" text-anchor="middle" font-size="28" font-weight="800" fill="var(--ink)" font-family="Bricolage Grotesque,sans-serif">${v}h</text><text x="100" y="112" text-anchor="middle" font-size="10" fill="var(--muted)">hours saved / week · of 45</text></svg><div class="eyebrow">Staff hours saved</div>`;
+}
+drawEx();
+
+/* ---------- hours ---------- */
+const TZ=[["UK (winter)",5,"Fits Lahore well: afternoon to evening."],["UK (summer)",4,"One hour earlier in Lahore during UK summer time."],["Central Europe",4,"Afternoon to evening in Lahore."],["US East (EST)",10,"Late shift for the account manager and SDRs."],["US West (PST)",13,"Night shift; use for calls only, by appointment."]];
+let tz=0;const fmtH=h=>{h=((h%24)+24)%24;const ap=h>=12?"pm":"am";const hh=h%12===0?12:h%12;return hh+" "+ap};
+function drawTz(){$("tzSeg").innerHTML=TZ.map((t,i)=>`<button data-i="${i}" aria-pressed="${i===tz}">${t[0]}</button>`).join("");
+  $("tzSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{tz=+b.dataset.i;drawTz()});
+  $("tzOut").textContent=fmtH(9+TZ[tz][1])+" – "+fmtH(17+TZ[tz][1])+" in Lahore";$("tzNote").textContent=TZ[tz][2]+" Delivery work runs on the normal day shift (10 am – 7 pm)."}
+drawTz();
+
+/* ---------- quality checklist ---------- */
+const Q=["Client approved the one-page design, including approval points and limits.","All credentials stored in n8n credentials or a vault; client owns every account.","Tested on 50+ real samples; accuracy per field recorded and signed off.","Every workflow has an error branch that alerts the team.","Human approval set for money, new vendors and low AI confidence.","Ran 1–2 weeks in shadow mode next to staff.","Logs kept for every run; personal data minimised in prompts."];
+$("qList").innerHTML=Q.map((q,i)=>`<li><label for="q${i}"><input type="checkbox" id="q${i}"><span>${q}</span></label></li>`).join("");
+
+/* ---------- tools ---------- */
+const TOOLS=[
+ ["n8n (self-hosted)","Workflows & agents","free","Free + server (≈ $10–$50/mo)","Main builder for complex flows and AI agents"],
+ ["n8n Cloud","Workflows & agents","paid","From ≈ $22/mo","Hosted n8n for clients who want it on their own account"],
+ ["Make","Workflows","paid","Free; from ≈ $9/mo","Visual medium-complexity flows"],
+ ["Zapier","Workflows","paid","Free; from ≈ $20/mo","Simple jobs, 7,000+ app connections"],
+ ["OpenAI API","AI models","paid","Per usage","Extraction, writing, agents"],
+ ["Anthropic (Claude) API","AI models","paid","Per usage","Long documents, careful writing, agents"],
+ ["Google Gemini API","AI models","paid","Per usage","Documents and multimodal tasks"],
+ ["Supabase","Database & vector search","free","Free tier + usage","Assistant memory and RAG"],
+ ["Pinecone","Vector search","free","Free tier + usage","RAG at scale"],
+ ["Google Document AI / Azure Document Intelligence","Document AI","paid","Per page","OCR and field extraction from PDFs"],
+ ["Vapi / Retell","Voice agents","paid","Per minute","AI phone calls"],
+ ["Twilio","Calls & SMS","paid","Per use","Phone numbers, SMS"],
+ ["Slack / Microsoft Teams","Approvals & delivery","free","Client's account","Approval buttons, assistant chat"],
+ ["QuickBooks Online / Xero APIs","Finance","free","Client's account","Draft bills, reconciliations, reports"],
+ ["NetSuite","Finance / ERP","paid","Client's account","Mid-market ERP integrations"],
+ ["TMS APIs (various)","Freight","paid","Client's account","Create loads, read statuses"],
+ ["Google Sheets","Data","free","Free","Logs, test sheets, light databases"],
+ ["Airtable","Data","paid","Free; from ≈ $20/seat","Client-friendly databases and interfaces"],
+ ["Power BI / Looker Studio","Reporting","free","Free tiers","Dashboards for finance and ops"],
+ ["Python","Calculations","free","Free","Reconciliations and finance maths (AI explains, code calculates)"],
+ ["Postman","APIs","free","Free tier","Test API calls"],
+ ["Better Stack","Monitoring","paid","Free tier + paid","Uptime and error alerts"],
+ ["Loom","Sales & docs","free","Free tier","Teardown videos, demos, handover"],
+ ["Miro / Excalidraw","Design","free","Free tiers","Process maps and designs"],
+ ["1Password / Bitwarden","Security","paid","≈ $4–$8 per user","Credential vault"],
+ ["Apollo + Instantly","Sales","paid","≈ $200/mo","Job-ad signal prospects and cold email"]
+];
+let tf="all";
+function drawTools(){
+  const q=$("toolSearch").value.trim().toLowerCase();
+  const rows=TOOLS.filter(t=>(tf==="all"||t[2]===tf)&&(!q||t.join(" ").toLowerCase().includes(q)));
+  $("toolTbl").innerHTML=rows.map(t=>`<tr><td><b>${esc(t[0])}</b></td><td>${esc(t[1])}</td><td><span class="pill ${t[2]}">${esc(t[3])}</span></td><td>${esc(t[4])}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">No tool matches "${esc(q)}". Try another word, or press All.</td></tr>`;
+  $("toolCount").textContent=`Showing ${rows.length} of ${TOOLS.length} tools. Our monthly stack for 10 clients: approx. $1,200 (client accounts and AI usage billed to clients).`;
+}
+$("toolSearch").oninput=drawTools;
+document.querySelectorAll("#toolSeg button").forEach(b=>b.onclick=()=>{tf=b.dataset.f;document.querySelectorAll("#toolSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawTools()});
+drawTools();
+
+/* ---------- tools to learn ---------- */
+const ROLES=[["all","Whole team"],["B","Builder"],["A","AI & RAG engineer"],["Q","QA & monitoring"],["M","Analyst / account mgr"],["L","Lead / architect"],["D","Sales (SDR)"]];
+const RN={B:"Builder",A:"AI eng.",Q:"QA",M:"Analyst",L:"Lead",D:"Sales"};
+const LEARN=[
+ [1,"Zapier and Make basics","BMLD",4,"Many clients already use them; you must read their flows.",["Triggers and actions","Filters and paths","Task/operation costs"],["Zapier Learn|https://zapier.com/learn","Make Academy|https://academy.make.com"],"A form → sheet → Slack flow running 10 times."],
+ [1,"n8n fundamentals","BAQL",12,"Our main platform.",["Nodes, triggers, expressions","Credentials and environments","Error workflows"],["n8n docs|https://docs.n8n.io"],"Email → AI → sheet workflow with an error branch."],
+ [1,"APIs, JSON and webhooks","BAQ",6,"Every integration is an API call.",["REST basics: GET, POST, auth","Reading JSON","Webhooks in and out"],["Postman Learning Center|https://learning.postman.com"],"Call a REST API and map its JSON into a sheet."],
+ [1,"Prompt writing for business tasks","BAQMLD",4,"AI steps must return the same structure every time.",["Role, rules, output format","JSON-only outputs","Few-shot examples"],["Anthropic prompting guide|https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview","OpenAI prompting guide|https://platform.openai.com/docs/guides/prompt-engineering"],"An extraction prompt with 95%+ accuracy on 20 samples."],
+ [1,"Process mapping and discovery","MLD",3,"Finding and explaining the gap is the sale.",["Interview questions","Flowcharts","Gap Score"],["Miro Academy|https://miro.com/academy/"],"Map one real process end to end with hours."],
+ [2,"AI agents in n8n (tools, memory)","AL",10,"Level 4 builds.",["Agent node, tools, memory","Stopping conditions","Approvals"],["n8n AI docs|https://docs.n8n.io/advanced-ai/"],"An agent that uses 2 tools and asks for approval."],
+ [2,"RAG and vector databases","A",10,"Custom AI assistants.",["Chunking and embeddings","Vector search","Citations and permissions"],["Supabase AI docs|https://supabase.com/docs/guides/ai","Pinecone docs|https://docs.pinecone.io"],"Assistant answers 20 SOP questions with sources."],
+ [2,"Document AI / OCR","BA",6,"PDF invoices, rate cons and POs.",["OCR vs LLM extraction","Field validation","Confidence scores"],["Google Document AI|https://cloud.google.com/document-ai/docs","Azure Document Intelligence|https://learn.microsoft.com/azure/ai-services/document-intelligence/"],"Extract 10 fields from 50 invoices."],
+ [2,"QuickBooks / Xero APIs","B",6,"Finance automation pack.",["Sandbox accounts","Bills, invoices, bank feeds","OAuth"],["Intuit developer|https://developer.intuit.com","Xero developer|https://developer.xero.com"],"Create a draft bill via API in a sandbox."],
+ [2,"TMS and freight integrations","BM",6,"Freight operations pack.",["Common TMS APIs and email parsing","Load data fields","Load board posting"],["Vendor API docs (client's TMS)"],"Create a test load from a rate con."],
+ [2,"Monitoring and error handling","QB",4,"Care plans depend on it.",["Error workflows","Retries and timeouts","Alerting"],["n8n error handling|https://docs.n8n.io/flow-logic/error-handling/","Better Stack docs|https://betterstack.com/docs"],"An alert fires when a test flow fails."],
+ [2,"Evaluation and testing","QA",5,"Proves accuracy before go-live.",["Test sets from real samples","Accuracy per field","Shadow mode"],["Anthropic evaluation guide|https://docs.claude.com/en/docs/test-and-evaluate/develop-tests"],"Accuracy report on 50 samples."],
+ [2,"Apollo, LinkedIn and Loom outreach","D",5,"Job-ad signal selling.",["Find job ads with repetitive tasks","Record a 2-minute teardown","Sequences and opt-outs"],["Apollo Academy|https://www.apollo.io/academy","Loom help|https://support.loom.com"],"10 teardown videos sent in one day."],
+ [3,"Python / SQL for finance calcs","AB",15,"AI explains, code calculates.",["Pandas basics","Joins and matching","Scheduling scripts"],["Kaggle Learn|https://www.kaggle.com/learn"],"Reconcile 2 CSVs with a script."],
+ [3,"Voice agents (Vapi / Retell)","A",6,"AI phone calls.",["Call flows","Tool calls during calls","Disclosure and consent"],["Vapi docs|https://docs.vapi.ai","Retell docs|https://docs.retellai.com"],"An inbound call books a test appointment."],
+ [3,"Security basics","BAQMLD",4,"Client data protection.",["Secrets and vaults","Least access","Logging and retention"],["OWASP Top 10|https://owasp.org/www-project-top-ten/"],"Credentials in a vault; access review done."]
+];
+let role=store.get("agents-role","all"),learned=new Set(store.get("agents-learned",[]));
+const LVL=[["Level 1 · Learn first","weeks 1–2","var(--c1)"],["Level 2 · Learn next","weeks 3–6","var(--c3)"],["Level 3 · Advanced","month 2+","var(--c6)"]];
+function drawLearn(){
+  $("roleSeg").innerHTML=ROLES.map(r=>`<button data-r="${r[0]}" aria-pressed="${r[0]===role}">${r[1]}</button>`).join("");
+  $("roleSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{role=b.dataset.r;store.set("agents-role",role);drawLearn()});
+  const list=LEARN.map((t,i)=>[t,i]).filter(([t])=>role==="all"||t[2].includes(role));
+  $("levels").innerHTML=LVL.map((Lv,li)=>{const items=list.filter(([t])=>t[0]===li+1);const hrs=items.reduce((a,[t])=>a+t[3],0);
+    return `<div class="lvl" style="--lc:${Lv[2]}"><div class="lvl-h"><b>${Lv[0]}</b><span>${Lv[1]} · ${hrs} h</span></div>`+
+     (items.length?items.map(([t,i])=>`<div class="lt${learned.has(i)?" done":""}" style="--lc:${Lv[2]}"><div class="lt-top"><h4>${esc(t[1])}</h4><span class="hrs">${t[3]} h</span></div>
+      <p class="why">${esc(t[4])}</p><ul>${t[5].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      <div class="where"><b>Learn free:</b> ${t[6].map(w=>{const [n,u]=w.split("|");return u?`<a href="${u}" target="_blank" rel="noopener">${esc(n)}</a>`:esc(n)}).join(" · ")}</div>
+      <div class="test"><b>Skill test:</b> ${esc(t[7])}</div>
+      <div class="roles">${[...t[2]].map(c=>`<span>${RN[c]}</span>`).join("")}</div>
+      <label for="lt${i}"><input type="checkbox" id="lt${i}" data-i="${i}" ${learned.has(i)?"checked":""}> I passed the skill test</label></div>`).join(""):`<div class="small muted">Nothing extra at this level for this role.</div>`)+`</div>`}).join("");
+  $("levels").querySelectorAll("input").forEach(el=>el.onchange=()=>{const i=+el.dataset.i;el.checked?learned.add(i):learned.delete(i);store.set("agents-learned",[...learned]);drawLearn()});
+  const n=list.filter(([,i])=>learned.has(i)).length,total=list.length,hrs=list.reduce((a,[t])=>a+t[3],0),left=list.filter(([,i])=>!learned.has(i)).reduce((a,[t])=>a+t[3],0);
+  $("lpText").textContent=`${n} of ${total} tools learned · ${ROLES.find(r=>r[0]===role)[1]}`;
+  $("lpBar").style.width=(total?n/total*100:0)+"%";
+  $("lpHours").textContent=`${hrs} hours in total, ${left} hours left`;
+}
+drawLearn();
+
+/* ---------- methods ---------- */
+const M=[
+ ["Run a discovery interview","The best automations come from watching real work, not guessing.",["Interview 3–5 people who do the work (30 minutes each).","Ask: \"Walk me through yesterday. What did you copy, type or chase?\"","Screen-record one full task with Loom.","Write every task: frequency, minutes, systems, inputs, outputs, exceptions.","Ask what goes wrong and how often."],"Loom, Google Sheets, Miro","A task inventory with hours per week",
+  "Task | Who | Times/week | Minutes each | Hours/week | Systems | Input (email/PDF/app) | Output | Exceptions | Gap Score"],
+ ["Score and price the opportunity","Clients buy ROI. Show their own numbers.",["Score each task with the Gap Score (chapter 04).","Hours/week × 52 × loaded hourly cost = yearly cost.","Estimate the share automatable from the score.","Pick the top 3 by savings ÷ build effort.","Quote a fixed price and show payback months."],"Gap Score calculator, Sheets","A one-page ROI and quote",
+  "Yearly cost      = hours per week x 52 x hourly cost\nYearly saving    = yearly cost x share automatable\nPayback (months) = build price / (monthly saving - care plan fee)\nExample: 30 h/wk x 52 x $30 = $46,800; 70% = $32,760/yr = $2,730/mo\nBuild $6,000, care $1,200/mo -> 6,000 / (2,730 - 1,200) = 3.9 months"],
+ ["Design the workflow on paper first","A clear design avoids rebuilds.",["Draw trigger → steps → actions → notifications.","Mark every decision: rule or AI?","Mark approval points and limits (e.g. over $5,000 → human).","List each data field and its source.","Get client sign-off before building."],"Miro or Excalidraw","A signed-off one-page design",
+  "DESIGN (one page)\nTrigger:     [new email to invoices@ | schedule 7am | webhook]\nSteps:       1 [AI extract]  2 [rule check]  3 [create record]\nApprovals:   [amount > $5,000] [new vendor] [AI confidence < 0.9]\nOutputs:     [QuickBooks draft bill] [Slack summary]\nErrors:      [alert #ops-alerts] [retry 3x]\nOwner:       [client name]   Review: monthly"],
+ ["Build in n8n with error handling","Workflows break when systems change; plan for it.",["Create the trigger (webhook, email, schedule).","Add each step and test with real sample data.","Add an error workflow that logs and alerts.","Use retries for network calls.","Store credentials in n8n credentials, never in nodes or code.","Name and annotate every node."],"n8n, client test accounts","A working workflow with alerts",
+  "Node naming\n01 Trigger - Gmail invoices@\n02 AI - Extract invoice fields\n03 IF - Total matches lines?\n04 QBO - Create draft bill\n05 Slack - Daily summary\nERR - Error workflow -> #ops-alerts"],
+ ["Write reliable AI extraction prompts","AI steps must return the same structure every time.",["Give the model its role and the exact fields.","Ask for JSON only, with field types.","Give 2–3 real examples with correct outputs.","Return null when unsure, never guess.","Test on 50+ samples; record accuracy per field."],"LLM API, test sheet","A prompt with measured accuracy",
+  "System: You extract data from freight rate confirmations.\nReturn ONLY valid JSON:\n{\"broker\":string,\"load_number\":string,\"pickup_date\":\"YYYY-MM-DD\",\n \"pickup_city\":string,\"delivery_city\":string,\"rate_usd\":number,\"equipment\":string}\nIf a field is missing or unclear, return null. Never guess numbers."],
+ ["Add human-in-the-loop approvals","Approvals let us automate risky steps safely.",["Set rules: amount limits, new vendors, low AI confidence.","Send the item to Slack/Teams/email with Approve / Reject.","Wait; time out and escalate if no answer.","Log who approved and when."],"n8n wait/approval nodes, Slack","Safe automation of high-value steps",
+  "Approval message\nInvoice from [Vendor] for $[amount] needs approval.\nReason: [over limit | new vendor | low confidence]\nPO: [number]   Due: [date]\n[Approve]  [Reject]  [Open PDF]"],
+ ["Build a custom AI assistant (RAG)","Staff and customers get answers from approved knowledge.",["Collect source documents; name an owner for each.","Clean and split them; store embeddings in a vector database.","Rules: answer only from sources, cite them, say \"I don't know\".","Connect to Slack, Teams or the website.","Test with 30 real questions; fix document gaps.","Review logs weekly in month one."],"n8n AI nodes, Supabase/Pinecone, LLM","An assistant that answers with sources",
+  "Assistant rules\n- Answer only from the provided company documents.\n- Cite the document name for every answer.\n- If the answer is not in the documents, say: \"I don't know - ask [owner].\"\n- Never share data the user's role cannot see.\n- Keep answers under 120 words unless asked for more."],
+ ["Test with real samples and shadow mode","Proves accuracy before the client depends on it.",["Collect 50–100 real past items.","Run them through; compare with correct results.","Fix prompts and rules until accuracy meets target (e.g. 97%).","Run 1–2 weeks in shadow mode next to staff.","Go live; exceptions still go to people."],"Test sheet, n8n","A signed accuracy report",
+  "Accuracy report\nSamples: 80   Fields: 7   Target: 97%\nField          Correct  Accuracy\nload_number    80/80    100%\npickup_date    78/80    97.5%\nrate_usd       79/80    98.8%\n...            ...      ...\nOverall        548/560  97.9%  -> PASS"],
+ ["Monitor and improve (care plan)","Recurring revenue comes from keeping automations healthy.",["Daily: check alerts and failed runs.","Weekly: review exceptions and AI mistakes; update prompts.","Monthly: report hours saved, volume, errors and next ideas.","Quarterly: review access, credentials and costs."],"n8n executions, Better Stack, Looker Studio","A monthly care report",
+  "Monthly care report\nRuns: [n]   Success: [x%]   Exceptions: [n]   Fixes: [n]\nHours saved this month: [h]  (≈ $[value])\nAI + tool costs: $[cost]\nNext improvements: 1) [...] 2) [...]"],
+ ["Turn builds into templates","Templates make the 5th build 3x faster and more profitable.",["Remove client-specific parts after each build.","Save as a template with a setup checklist.","Write a one-page sales sheet.","Record a 3-minute demo video.","Price as a fixed package."],"n8n templates, Loom","A growing library of packaged solutions",
+  "Template card\nName:        Rate con -> TMS (AI)\nFor:         freight brokers using [TMS]\nSetup time:  2 days   Price: $5,000 + $1,200/mo\nNeeds:       inbox access, TMS API key, Slack\nResult:      ~80% less entry time, exceptions to dispatcher"]
+];
+$("methods").innerHTML=M.map((m,i)=>`<details class="method"${i===0?" open":""}><summary><span class="mn">Method ${i+1}</span><span class="mt">${esc(m[0])}</span><span class="chev" aria-hidden="true">›</span></summary>
+ <div class="mb"><p style="margin:0"><b>Why:</b> ${esc(m[1])}</p><ol>${m[2].map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
+ <div class="mfoot"><span><b>Tools:</b> ${esc(m[3])}</span><span><b>You end with:</b> ${esc(m[4])}</span></div>
+ <div class="code"><pre>${esc(m[5])}</pre><button class="copy" data-i="${i}">Copy</button></div></div></details>`).join("");
+document.querySelectorAll(".code .copy").forEach(b=>b.onclick=()=>copyText(M[+b.dataset.i][5],b));
+
+/* ---------- prices ---------- */
+const PR={us:{sym:"$",k:1},eu:{sym:"€",k:0.87},wl:{sym:"$",k:0.7}};
+let cur="us";
+function drawPrices(){
+  const c=PR[cur],f=n=>c.sym+Math.round(n*c.k/50)*50;
+  const F=n=>f(n).replace(/\B(?=(\d{3})+(?!\d))/g,",");
+  $("prices").innerHTML=
+   `<div class="price-card"><span class="eyebrow">Automation audit</span><div class="amt">${F(500)}</div><div class="per">small · ${F(1500)} mid-market</div><ul><li>Task inventory</li><li>Gap Scores + ROI</li><li>Fixed quote (credited)</li></ul></div>`+
+   `<div class="price-card"><span class="eyebrow">Quick wins</span><div class="amt">${F(750)}+</div><div class="per">per workflow · 3 for ${F(2000)}</div><ul><li>App-to-app automations</li><li>One AI step</li><li>Live in days</li></ul></div>`+
+   `<div class="price-card feat"><span class="eyebrow" style="color:var(--c6)">Most popular</span><div class="amt">${F(5000)}+</div><div class="per">document AI / workflow pack / packs</div><ul><li>Freight or finance pack</li><li>Approvals + error alerts</li><li>Shadow mode testing</li></ul></div>`+
+   `<div class="price-card"><span class="eyebrow">Custom AI agent</span><div class="amt">${F(5000)}–${F(12000)}</div><div class="per">+ ${F(750)}–${F(2000)}/mo</div><ul><li>Goal + tools + memory</li><li>Evaluation on real cases</li><li>Human approval points</li></ul></div>`+
+   `<div class="price-card"><span class="eyebrow">Care plan</span><div class="amt">${F(400)}</div><div class="per">/mo · ${F(1200)} Growth · ${F(2500)} Ops</div><ul><li>Monitoring and fixes</li><li>Prompt updates</li><li>Monthly hours-saved report</li></ul></div>`;
+  document.querySelectorAll("#curSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.c===cur));
+}
+document.querySelectorAll("#curSeg button").forEach(b=>b.onclick=()=>{cur=b.dataset.c;drawPrices()});
+drawPrices();
+
+/* ---------- margin calculator ---------- */
+const mix={s:4,g:4,a:2,b:2,wl:0};
+const MIXIN=[["s","Basic care plans ($400)",30,1],["g","Growth care plans ($1,200)",30,1],["a","Ops care plans ($2,500)",15,1],["b","New builds per month (avg $5,300)",10,0.5],["wl","Share that is white-label (30% off)",100,5]];
+$("mixIn").innerHTML=`<div class="eyebrow" style="margin-bottom:10px">Client mix</div>`+MIXIN.map(m=>`<div class="slider"><label for="mx-${m[0]}"><span>${m[1]}</span><output id="mxo-${m[0]}"></output></label><input type="range" id="mx-${m[0]}" min="0" max="${m[2]}" step="${m[3]}" value="${mix[m[0]]}" data-k="${m[0]}"></div>`).join("")+`<button class="iconbtn" id="mixReset">Reset to 4 / 4 / 2 + 2 builds</button>`;
+function calcMix(){
+  MIXIN.forEach(m=>$("mxo-"+m[0]).textContent=m[0]==="wl"?mix.wl+"%":mix[m[0]]);
+  const n=mix.s+mix.g+mix.a,k=1-0.3*mix.wl/100,care=(mix.s*400+mix.g*1200+mix.a*2500)*k,builds=mix.b*5300*k,rev=care+builds;
+  const pods=(n===0&&mix.b===0)?0:Math.max(1,n/10,mix.b/2),team=pods*7450,tools=pods?Math.max(1,n/10)*1200:0;
+  const gp=rev-team-tools,mg=rev>0?gp/rev*100:0,f=x=>"$"+Math.round(x).toLocaleString("en-US");
+  $("mixOut").innerHTML=`<span>Care-plan clients</span><span>${n}</span><span>Care-plan revenue</span><span>${f(care)}</span><span>Build revenue</span><span>${f(builds)}</span><span>Lahore team (${pods.toFixed(1)} pod${pods>1?"s":""})</span><span>−${f(team)}</span><span>Software and tools</span><span>−${f(tools)}</span><span class="tot">Gross profit</span><span class="tot" style="color:${gp>=0?"var(--good)":"var(--bad)"}">${f(gp)}</span><span class="tot">Gross margin</span><span class="tot">${mg.toFixed(0)}%</span>`;
+  const t=Math.max(rev,team+tools,1);
+  $("mixBar").innerHTML=`<i style="width:${Math.max(0,gp)/t*100}%;background:var(--good)"></i><i style="width:${team/t*100}%;background:var(--muted);opacity:.5"></i><i style="width:${tools/t*100}%;background:var(--signal)"></i>`;
+}
+document.querySelectorAll("#mixIn input").forEach(el=>el.oninput=()=>{mix[el.dataset.k]=+el.value;calcMix()});
+$("mixReset").onclick=()=>{Object.assign(mix,{s:4,g:4,a:2,b:2,wl:0});document.querySelectorAll("#mixIn input").forEach(el=>el.value=mix[el.dataset.k]);calcMix()};
+calcMix();
+
+/* ---------- funnels ---------- */
+const MK={
+ us:{name:"United States",col:"var(--us)",facts:[["Who we target",["Freight brokers and 3PLs","CPA firms and SMB finance teams","Distributors and insurance agencies","Firms with 10–500 staff"]],["Where they gather",["Job boards (Indeed, LinkedIn) for signals","TIA, AICPA ENGAGE, state CPA societies, IIABA","LinkedIn; QuickBooks/Xero communities","MSP and fractional CFO networks"]],["Rules",["Cold email allowed (CAN-SPAM)","GLBA for financial data; Section 7216 for tax data","HIPAA BAA for health data; TCPA for calls"]],["Hours in Lahore",["East Coast 9 am–1 pm = 7–11 pm","West Coast 9 am–1 pm = 10 pm–2 am","Builds run on the day shift"]]]},
+ uk:{name:"United Kingdom",col:"var(--uk)",facts:[["Who we target",["Logistics and freight forwarders","Accounting practices and finance teams","Wholesale and distribution","Professional services firms"]],["Where they gather",["LinkedIn and UK job boards","ICAEW and ACCA events, Accountex","Road Haulage Association, logistics shows","Xero and QuickBooks UK communities"]],["Rules",["Cold email to corporate addresses with opt-out (PECR)","UK GDPR: DPA + IDTA/Addendum","EU AI Act for EU clients: disclose AI"]],["Hours in Lahore",["UK 9 am–5 pm = 2–10 pm (winter)","Best time-zone fit","Client calls in the afternoon"]]]}
+};
+const CHN={
+ direct:{t:"One month of job-ad signal outreach",st:["Companies with a job-ad signal","Teardown videos sent","Replies","Discovery calls","Audits sold","Builds + care plans"],
+  inp:[["n","Companies found / month",100,1500,50,400,"n"],["snap","Teardown rate",5,60,1,30,"%"],["reply","Replies (of teardowns)",5,50,1,25,"%"],["call","Replies that book a call",10,80,1,40,"%"],["aud","Calls that buy an audit",10,80,1,42,"%"],["ret","Audits that become builds",20,90,1,60,"%"],["audit","Average audit price",300,2000,50,750,"$"],["build","Average build price",1000,15000,250,5300,"$"],["price","Average care plan",300,3000,50,1200,"$"],["spend","Monthly outreach cost",300,5000,50,1500,"$"]],
+  calc:v=>{const a=v.n,b=a*v.snap/100,c=b*v.reply/100,d=c*v.call/100,e=d*v.aud/100,f=e*v.ret/100;return {c:[a,b,c,d,e,f],aud:e,builds:f}}},
+ agency:{t:"One month of referral partnerships (CPA firms, MSPs, agencies)",st:["Partners contacted","Demos given","Partners signed","Clients referred","Builds + care plans"],
+  inp:[["n","Partners contacted / month",10,200,5,40,"n"],["snap","Partners who take a demo",5,60,1,30,"%"],["call","Demos that sign",10,70,1,25,"%"],["aud","Referrals per new partner (month 1)",0.5,5,0.5,1.5,"x"],["ret","Referrals that buy a build",20,90,1,60,"%"],["audit","Average audit price",300,2000,50,1000,"$"],["build","Average build price (after 15% fee)",1000,15000,250,4500,"$"],["price","Average care plan",300,3000,50,1200,"$"],["spend","Monthly partner cost",0,3000,50,500,"$"]],
+  calc:v=>{const a=v.n,b=a*v.snap/100,c=b*v.call/100,d=c*v.aud,e=d*v.ret/100;return {c:[a,b,c,d,e],aud:d,builds:e}}},
+ content:{t:"One month of warm-network offers (freight, content, GEO clients)",st:["Contacts offered an audit","Audits sold","Builds + care plans"],
+  inp:[["n","Contacts offered / month",5,100,1,30,"n"],["aud","Contacts who buy an audit",5,80,1,30,"%"],["ret","Audits that become builds",20,90,1,65,"%"],["audit","Average audit price",300,2000,50,750,"$"],["build","Average build price",1000,15000,250,5300,"$"],["price","Average care plan",300,3000,50,1200,"$"],["spend","Monthly cost (account manager time)",0,2000,50,300,"$"]],
+  calc:v=>{const a=v.n,b=a*v.aud/100,c=b*v.ret/100;return {c:[a,b,c],aud:b,builds:c}}}
+};
+let mk="us",chn="direct";const fv={};Object.entries(CHN).forEach(([k,c])=>{fv[k]={};c.inp.forEach(i=>fv[k][i[0]]=i[5])});
+const fmtIn=(u,v)=>u==="%"?v+"%":u==="$"?"$"+v.toLocaleString("en-US"):u==="x"?v+"×":v.toLocaleString("en-US");
+const money=n=>n>=10000?"$"+(n/1000).toFixed(1).replace(".0","")+"k":"$"+Math.round(n).toLocaleString("en-US");
+function drawFInputs(){
+  const c=CHN[chn];
+  $("fInputs").innerHTML=`<div class="eyebrow" style="margin-bottom:10px">Assumptions · ${c.t.toLowerCase()}</div>`+c.inp.map(i=>`<div class="slider"><label for="fi-${chn}-${i[0]}"><span>${i[1]}</span><output id="fo-${i[0]}">${fmtIn(i[6],fv[chn][i[0]])}</output></label><input type="range" id="fi-${chn}-${i[0]}" min="${i[2]}" max="${i[3]}" step="${i[4]}" value="${fv[chn][i[0]]}" data-k="${i[0]}"></div>`).join("")+`<button class="iconbtn" id="fReset">Reset to guide estimates</button>`;
+  $("fInputs").querySelectorAll("input").forEach(el=>el.oninput=()=>{const i=c.inp.find(x=>x[0]===el.dataset.k);fv[chn][i[0]]=+el.value;$("fo-"+i[0]).textContent=fmtIn(i[6],+el.value);drawFunnel()});
+  $("fReset").onclick=()=>{c.inp.forEach(i=>fv[chn][i[0]]=i[5]);drawFInputs();drawFunnel()};
+}
+function drawFunnel(){
+  const c=CHN[chn],v=fv[chn],r=c.calc(v),cnt=r.c,col=MK[mk].col;
+  $("fTitle").textContent=c.t+" · "+MK[mk].name;
+  const W=640,rowH=56,H=cnt.length*rowH+8,cx=200,max=Math.log10(cnt[0]+1);
+  const wOf=x=>Math.max(100,30+360*(Math.log10(x+1)/max));
+  let s=`<defs><linearGradient id="fg" x1="0" x2="1"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="var(--cyan)"/></linearGradient></defs>`;
+  cnt.forEach((x,i)=>{
+    const w1=wOf(x),w2=i<cnt.length-1?wOf(cnt[i+1]):w1*0.82,y=4+i*rowH,h=rowH-6;
+    const op=1-i*(0.55/(cnt.length));
+    s+=`<path d="M${cx-w1/2} ${y} L${cx+w1/2} ${y} L${cx+w2/2} ${y+h} L${cx-w2/2} ${y+h} Z" fill="url(#fg)" fill-opacity="${op.toFixed(2)}"><title>${c.st[i]}: ${x>=10?Math.round(x).toLocaleString("en-US"):x.toFixed(1)}</title></path>`;
+    const num=x>=10?Math.round(x).toLocaleString("en-US"):x.toFixed(1);
+    s+=`<text x="${cx}" y="${y+h/2+5}" text-anchor="middle" font-size="17" font-weight="700" fill="#fff" font-family="IBM Plex Sans,sans-serif">${num}</text>`;
+    s+=`<text x="402" y="${y+h/2-2}" font-size="15" fill="var(--ink)" font-weight="600">${c.st[i]}</text>`;
+    if(i>0){const p=cnt[i-1]>0?Math.round(x/cnt[i-1]*100):0;s+=`<text x="402" y="${y+h/2+16}" font-size="12.5" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${chn==="agency"&&i===3?v.aud+"× per partner":p+"% of previous"}</text>`}
+  });
+  const svg=$("funnelSvg");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML=s;
+  const nw=r.builds,cac=nw>0?v.spend/nw:0;let cl=0;const ser=[];for(let m=1;m<=12;m++){cl=cl*0.96+nw;ser.push(cl*v.price)}
+  $("rNew").textContent=nw.toFixed(1);$("rCac").textContent=nw>0?money(cac):"–";$("rAud").textContent=money(r.aud*v.audit+r.builds*v.build);$("rMrr").textContent=money(ser[11]);
+  drawProj(ser,col);
+}
+function drawProj(s,col){
+  const W=600,H=170,L=46,R=12,T=14,B=26,mx=Math.max(30000,Math.ceil(Math.max(...s)/10000)*10000);
+  const x=i=>L+i*(W-L-R)/11,y=v=>H-B-v/mx*(H-T-B),pts=s.map((v,i)=>`${x(i)},${y(v)}`).join(" ");
+  let g=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Projected care-plan revenue over 12 months">`;
+  [0,mx/2,mx].forEach(t=>g+=`<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L-6}" y="${y(t)+4}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono,monospace">$${t/1000}k</text>`);
+  g+=`<text x="${L+6}" y="${T+4}" font-size="10" fill="var(--muted)">Care-plan (recurring) revenue only; build fees are extra</text>`;
+  g+=`<polygon points="${L},${y(0)} ${pts} ${x(11)},${y(0)}" fill="${col}" fill-opacity=".12"/><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2.5"/>`;
+  s.forEach((v,i)=>g+=`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="${col}"><title>Month ${i+1}: ${money(v)}</title></circle><text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="9.5" fill="var(--muted)" font-family="IBM Plex Mono,monospace">M${i+1}</text>`);
+  $("projSvg").innerHTML=g+`</svg>`;
+}
+function drawFacts(){$("mFacts").innerHTML=MK[mk].facts.map(([h,it])=>`<div class="panel"><h4>${h}</h4><ul>${it.map(x=>`<li>${x}</li>`).join("")}</ul></div>`).join("")}
+const setSeg=(id,attr,val)=>document.querySelectorAll(`#${id} button`).forEach(b=>b.setAttribute("aria-pressed",b.dataset[attr]===val));
+document.querySelectorAll("#mkSeg button").forEach(b=>b.onclick=()=>{mk=b.dataset.mk;setSeg("mkSeg","mk",mk);drawFacts();drawFunnel()});
+document.querySelectorAll("#chSeg button").forEach(b=>b.onclick=()=>{chn=b.dataset.ch;setSeg("chSeg","ch",chn);drawFInputs();drawFunnel()});
+drawFInputs();drawFacts();drawFunnel();
+
+/* ---------- scripts ---------- */
+const SC=[["Cold email (job-ad signal)","Subject: Your \"[job title]\" role: 3 tasks we'd automate\n\nHi [First name],\n\nI saw you're hiring a [job title]. The ad mentions [task 1], [task 2] and [task 3]. Companies like yours usually spend 20-30 hours a week on these.\n\nI recorded a 2-minute video showing how an AI workflow could handle them, with your team approving only the exceptions. Want me to send it?\n\n[Your name]\n[Company] | [Postal address]\nNot relevant? Reply \"no\" and I won't email again."],
+ ["Call script","1. Opener: \"Hi [Name], it's [Me] from [Company]. We build AI workflows for [industry] teams. Who handles [task] today?\"\n\n2. Pain: \"How many hours a week does that take? What happens when that person is out?\"\n\n3. Proof: \"A [similar company] cut [task] from 25 hours to 4 hours a week; their team only checks exceptions.\"\n\n4. Offer: \"We do a fixed-price audit: we map your top 10 repetitive tasks and show the savings. It's credited to the first build.\"\n\n5. Close: \"Would Tuesday or Thursday work for a 20-minute walkthrough?\""],
+ ["Referral partner (CPA firm or MSP)","Hi [Name], your clients are probably asking about AI.\n\nWe're an automation team that builds AI workflows for finance and operations (AP, reconciliations, reporting, document intake), with human approvals and full audit logs.\n\nWe work white-label or on referral (15%). Could we show you a 10-minute demo of our invoice agent?"]];
+$("scriptBox").innerHTML=SC.map((s,i)=>`<div class="script"><h4>${s[0]}</h4><div class="txt">${esc(s[1])}</div><button class="copy2" data-i="${i}">Copy text</button></div>`).join("");
+document.querySelectorAll(".copy2").forEach(b=>b.onclick=()=>copyText(SC[+b.dataset.i][1],b));
+
+/* ---------- score ---------- */
+const SCORE=[["Recurring revenue",20,4,"Care plans recur; builds repeat with expansion"],["Remote-ability",20,5,"Everything is built and run online"],["Regulatory gate",15,4,"No licence; finance/health data rules need care"],["Synergy with current businesses",15,5,"Freight domain, own processes as a lab, cross-sell to GEO/Ads clients"],["Acquisition cost",10,4,"Job-ad signals and warm network are cheap"],["Labour arbitrage",10,5,"US automation engineers cost many times Lahore salaries"],["AI-disruption risk",10,3,"Building gets easier, but clients still need someone to design, run and own it"]];
+const tot=SCORE.reduce((a,s)=>a+s[1]*s[2],0)/100;
+$("scoreBox").innerHTML=SCORE.map(s=>`<div class="srow"><span><b>${s[0]}</b> <span class="muted small">· ${s[1]}% · ${s[3]}</span></span><div class="sbar"><i style="width:${s[2]/5*100}%"></i></div><span class="mono">${s[2]}/5</span></div>`).join("")+`<div class="srow" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Weighted total</b></span><div class="sbar"><i style="width:${tot/5*100}%;background:var(--good)"></i></div><span class="mono"><b>${tot.toFixed(2)}</b></span></div>`;
+
+/* ---------- glossary ---------- */
+const GL=[["Automation","Software that does a task by itself when something happens."],["Workflow","A chain of automated steps: trigger, steps, actions."],["Trigger","The event that starts a workflow (email, form, file, time)."],["Node","One step (box) in an n8n workflow."],["Zapier / Make / n8n","Popular tools for building workflows between apps."],["API","A doorway that lets one app send data to another."],["Webhook","A message one app sends to another the moment something happens."],["JSON","A simple text format for structured data."],["LLM","Large language model: the AI brain (GPT, Claude, Gemini)."],["Prompt","Instructions given to the AI."],["AI agent","An AI with a goal and tools that decides its own steps in a loop."],["Custom AI assistant","A chat assistant that answers from a company's own data."],["RAG","Retrieval-augmented generation: the AI looks up documents before answering."],["Vector database","A database that finds text by meaning, used for RAG."],["Human-in-the-loop","A person approves or corrects the AI at set points."],["Shadow mode","The automation runs alongside staff before going live."],["Guardrails","Limits on what an agent may do."],["OCR / document AI","Reading text and fields from PDFs and images."],["3-way match","Checking an invoice against the purchase order and delivery receipt."],["Reconciliation","Matching bank transactions with accounting records."],["Variance analysis","Explaining differences between actual results and budget."],["Care plan","Monthly fee to monitor, fix and improve automations."],["Gap Score","Our 5-question score (max 25) to decide if a task should be automated."],["SLA","Service level agreement: promised response or fix time."],["MSP","Managed service provider: an IT support company and a good referral partner."],["TMS","Transportation management system used by brokers and carriers."],["Pod","A delivery team (architect share, builders, AI engineer, QA) for about 10 care plans."]];
+function drawGloss(){const q=$("glossSearch").value.trim().toLowerCase();const r=GL.filter(g=>!q||(g[0]+" "+g[1]).toLowerCase().includes(q));
+  $("glossBox").innerHTML=r.map(g=>`<div><b>${esc(g[0])}</b><span>${esc(g[1])}</span></div>`).join("")||`<div class="muted">No word matches "${esc(q)}".</div>`}
+$("glossSearch").oninput=drawGloss;drawGloss();
+
+/* ---------- sources ---------- */
+const SRC=[["CMARIX: AI agents statistics (MarketsandMarkets, McKinsey, Gartner)","https://www.cmarix.com/blog/ai-agents-statistics-trends/"],["LetsDataScience: McKinsey on AI agents by 2030 (Apr 2026)","https://letsdatascience.com/news/mckinsey-predicts-ai-agents-transform-workplace-by-2030-46812ac6"],["Vantaige: 2026 AI automation rate card","https://vantaige.io/es/blog/2026-ai-automation-rate-card-operators-charge"],["Digidop: n8n vs Make vs Zapier 2026","https://www.digidop.com/blog/n8n-vs-make-vs-zapier"],["Cut the SaaS: Make vs Zapier vs n8n","https://cut-the-saas.com/guides/make-vs-zapier-vs-n8n"],["n8n: Sustainable Use License FAQ","https://docs.n8n.io/n8n-community-license/community-license/license-faq"],["Beancount: Accountant shortage 2026","https://beancount.io/blog/2026/08/13/accountant-shortage-2026-120k-openings-guide"],["Medium: AI automation agencies charge $5k a client","https://medium.com/@automation.labs/ai-automation-agencies-charge-5k-a-client-few-get-five-f0e9ad0b5dde"],["Hostinger: Small business statistics 2026","https://www.hostinger.com/my/tutorials/small-business-statistics"],["IDT Pakistan: Digital marketing salaries 2026","https://www.idtpakistan.pk/blog/digital-marketing-salary-pakistan-2026"],["Goodwin: EU AI Act transparency in force","https://www.goodwinlaw.com/en/insights/publications/2026/08/alerts-technology-dpc-eu-ai-act-transparency-obligations-now-in-force"],["Overloop: Cold email rules by country","https://overloop.com/blog/cold-email-illegal"]];
+$("srcList").innerHTML=SRC.map(s=>`<li><a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a></li>`).join("");
+
+
+onScroll();
+
+/* ---------- v2: chapter numbers, ring, radar, funnel gradient ---------- */
+CH.forEach(c=>{const h=document.querySelector("#"+c[0]+" .chhead");if(h&&!h.querySelector(".chnum")){const n=document.createElement("span");n.className="chnum";n.textContent=c[1];n.setAttribute("aria-hidden","true");h.prepend(n)}});
+const ringFg=$("ringFg");
+addEventListener("scroll",()=>{const h=document.documentElement.scrollHeight-innerHeight;const p=h>0?scrollY/h:0;ringFg.setAttribute("stroke-dashoffset",(94.25*(1-p)).toFixed(1))},{passive:true});
+(function radar(){
+  const cv=$("radar");if(!cv||!cv.getContext)return;const ctx=cv.getContext("2d");
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W,H,dpr,cx,cy,R,dots=[];const labels=["invoice","email","CRM","TMS","PDF","Slack","QuickBooks","lead","form","sheet","ticket","ERP"];
+  function size(){dpr=Math.min(2,devicePixelRatio||1);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    cx=W>1060?W*0.74:W*0.5;cy=W>1060?H*0.4:H*0.62;R=W>1060?Math.min(W*0.42,640):Math.max(W,H)*0.55;
+    let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+    dots=Array.from({length:70},(_,i)=>{const a=rnd()*Math.PI*2,r=R*(0.18+rnd()*0.82);return{a,r,x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,hit:0,pick:i%23===0,lab:labels[i%labels.length]}})}
+  size();addEventListener("resize",size);
+  let t=0;
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(let k=1;k<=4;k++){ctx.beginPath();ctx.arc(cx,cy,R*k/4,0,Math.PI*2);ctx.strokeStyle="rgba(120,170,255,"+(0.26-k*0.04)+")";ctx.lineWidth=1;ctx.stroke()}
+    ctx.strokeStyle="rgba(120,160,255,.06)";ctx.beginPath();ctx.moveTo(cx-R,cy);ctx.lineTo(cx+R,cy);ctx.moveTo(cx,cy-R);ctx.lineTo(cx,cy+R);ctx.stroke();
+    const sw=(t*0.012)%(Math.PI*2);
+    const g=ctx.createConicGradient?ctx.createConicGradient(sw-0.9,cx,cy):null;
+    if(g){g.addColorStop(0,"rgba(70,215,255,0)");g.addColorStop(0.14,"rgba(70,215,255,.24)");g.addColorStop(0.145,"rgba(70,215,255,0)");ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.fill()}
+    ctx.strokeStyle="rgba(70,215,255,.55)";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(sw)*R,cy+Math.sin(sw)*R);ctx.stroke();
+    dots.forEach(d=>{let da=((sw-d.a)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);if(da<0.05)d.hit=1;d.hit*=0.985;
+      const a=0.32+d.hit*0.68;ctx.beginPath();ctx.arc(d.x,d.y,d.pick?4:2.4,0,Math.PI*2);ctx.fillStyle=d.pick?"rgba(184,243,90,"+(0.35+d.hit*0.65)+")":"rgba(160,190,255,"+a+")";ctx.fill();
+      if(d.pick&&d.hit>0.15){ctx.strokeStyle="rgba(184,243,90,"+(d.hit*0.5)+")";ctx.lineWidth=1;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(cx,cy);ctx.stroke();ctx.setLineDash([]);
+        ctx.font="11px IBM Plex Mono, monospace";ctx.fillStyle="rgba(184,243,90,"+d.hit+")";ctx.fillText("automated",d.x+7,d.y-6)}
+      else if(d.hit>0.6&&d.r>R*0.4){ctx.font="10px IBM Plex Mono, monospace";ctx.fillStyle="rgba(160,190,255,"+(d.hit*0.5)+")";ctx.fillText(d.lab,d.x+6,d.y+3)}});
+    ctx.beginPath();ctx.arc(cx,cy,7,0,Math.PI*2);ctx.fillStyle="#46d7ff";ctx.fill();ctx.beginPath();ctx.arc(cx,cy,14+Math.sin(t*0.05)*3,0,Math.PI*2);ctx.strokeStyle="rgba(70,215,255,.35)";ctx.stroke();
+    t++;if(!reduce)requestAnimationFrame(frame);
+  }
+  if(reduce){t=60;dots.forEach(d=>d.hit=d.pick?1:0.3)}frame();
+})();
+
+})();
+</script>
+</body>
+</html>
